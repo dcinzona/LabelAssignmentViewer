@@ -92,6 +92,14 @@
                             <div class="feature-icon">✓</div>
                             <div>Responsive design with proper empty and loading states</div>
                         </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div>Select multiple records and delete in bulk with confirmation dialog</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div>Delete entire labels (including all assignments) with confirmation dialog</div>
+                        </div>
                     </div>
                 </div>
 
@@ -119,17 +127,24 @@
                                 </header>
                             </div>
                             <div class="slds-card__body slds-card__body_inner">
-                                <div class="slds-form-element">
-                                    <label class="slds-form-element__label">Select a Label</label>
-                                    <div class="slds-form-element__control">
-                                        <div class="slds-select_container">
-                                            <select class="slds-select">
-                                                <option value="">-- Select --</option>
-                                                <option value="1">Production Issue (3)</option>
-                                                <option value="2">Customer Inquiry (7)</option>
-                                                <option value="3">Billing Question (2)</option>
-                                            </select>
+                                <div class="slds-grid slds-gutters">
+                                    <div class="slds-col slds-size_3-of-4">
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label">Select a Label</label>
+                                            <div class="slds-form-element__control">
+                                                <div class="slds-select_container">
+                                                    <select class="slds-select">
+                                                        <option value="">-- Select --</option>
+                                                        <option value="1">Production Issue (3)</option>
+                                                        <option value="2" selected>Customer Inquiry (7)</option>
+                                                        <option value="3">Billing Question (2)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-4 slds-align-bottom">
+                                        <button class="slds-button slds-button_destructive">Delete Label</button>
                                     </div>
                                 </div>
                                 
@@ -139,6 +154,9 @@
                                             <span class="slds-text-title_caps">7 items • Updated 10:42 AM</span>
                                         </div>
                                         <div class="slds-col slds-grid slds-grid_align-end">
+                                            <div class="slds-form-element slds-m-right_small">
+                                                <button class="slds-button slds-button_outline-brand">Delete Selected</button>
+                                            </div>
                                             <div class="slds-form-element">
                                                 <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
                                                     <svg class="slds-icon slds-input__icon slds-input__icon_left slds-icon-text-default" aria-hidden="true">
@@ -153,6 +171,18 @@
                                     <table class="slds-table slds-table_cell-buffer slds-table_bordered">
                                         <thead>
                                             <tr class="slds-line-height_reset">
+                                                <th class="slds-text-align_right" scope="col" style="width: 3.25rem;">
+                                                    <div class="slds-th__action">
+                                                        <span class="slds-assistive-text">Choose a row</span>
+                                                        <div class="slds-checkbox">
+                                                            <input type="checkbox" name="select-all" id="select-all" value="all" />
+                                                            <label class="slds-checkbox__label" for="select-all">
+                                                                <span class="slds-checkbox_faux"></span>
+                                                                <span class="slds-form-element__label slds-assistive-text">Select All</span>
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </th>
                                                 <th class="" scope="col">
                                                     <div class="slds-truncate" title="Subject/Name">Subject/Name</div>
                                                 </th>
@@ -172,6 +202,15 @@
                                         </thead>
                                         <tbody>
                                             <tr class="slds-hint-parent">
+                                                <td class="slds-text-align_right" style="width: 3.25rem;">
+                                                    <div class="slds-checkbox">
+                                                        <input type="checkbox" name="select-row-1" id="select-row-1" value="row-1" checked />
+                                                        <label class="slds-checkbox__label" for="select-row-1">
+                                                            <span class="slds-checkbox_faux"></span>
+                                                            <span class="slds-form-element__label slds-assistive-text">Select Row</span>
+                                                        </label>
+                                                    </div>
+                                                </td>
                                                 <td data-label="Subject/Name">
                                                     <div class="slds-grid slds-grid_vertical-align-center">
                                                         <span class="slds-icon_container slds-icon-standard-case slds-m-right_x-small">
@@ -195,6 +234,15 @@
                                                 </td>
                                             </tr>
                                             <tr class="slds-hint-parent">
+                                                <td class="slds-text-align_right" style="width: 3.25rem;">
+                                                    <div class="slds-checkbox">
+                                                        <input type="checkbox" name="select-row-2" id="select-row-2" value="row-2" />
+                                                        <label class="slds-checkbox__label" for="select-row-2">
+                                                            <span class="slds-checkbox_faux"></span>
+                                                            <span class="slds-form-element__label slds-assistive-text">Select Row</span>
+                                                        </label>
+                                                    </div>
+                                                </td>
                                                 <td data-label="Subject/Name">
                                                     <div class="slds-grid slds-grid_vertical-align-center">
                                                         <span class="slds-icon_container slds-icon-standard-account slds-m-right_x-small">
