@@ -13,6 +13,10 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     @track selectedLabelId;
     @track assignments = [];
     @track filteredAssignments = [];
+    @track selectedRows = [];
+    @track isDeleteModalOpen = false;
+    @track isDeleteLabelModalOpen = false;
+    @track selectedLabelName = '';
     @track searchTerm = '';
     @track error;
     @track isLoading = true;
@@ -21,10 +25,6 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     @track lastRefreshed = new Date();
     @track sortBy;
     @track sortDirection = 'asc';
-    @track selectedRows = [];
-    @track isDeleteModalOpen = false;
-    @track isDeleteLabelModalOpen = false;
-    @track selectedLabelName = '';
     
     // Maximum number of records to show without pagination
     maxRecords = 100;
@@ -437,9 +437,19 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
         return selectedOption ? selectedOption.label : '';
     }
     
+    // Computed property for disabled state of Delete Label button
+    get noLabelSelected() {
+        return !this.selectedLabelId;
+    }
+    
     // Computed property to determine if bulk actions should be enabled
     get hasSelectedRows() {
         return this.selectedRows && this.selectedRows.length > 0;
+    }
+    
+    // Computed property for disabled state of Delete Selected button
+    get hasNoSelectedRows() {
+        return !this.hasSelectedRows;
     }
     
     // Handler for row selection change

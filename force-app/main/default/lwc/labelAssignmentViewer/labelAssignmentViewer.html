@@ -58,7 +58,7 @@
                                     label="Delete Label" 
                                     title="Delete Label"
                                     onclick={handleDeleteLabel} 
-                                    disabled={!selectedLabelId}
+                                    disabled={noLabelSelected}
                                     class="slds-m-bottom_x-small slds-m-left_x-small">
                                 </lightning-button>
                             </div>
@@ -87,7 +87,7 @@
                                         label="Delete Selected" 
                                         title="Delete Selected"
                                         onclick={handleDeleteSelected} 
-                                        disabled={!hasSelectedRows}
+                                        disabled={hasNoSelectedRows}
                                         class="slds-m-bottom_x-small slds-m-left_x-small">
                                     </lightning-button>
                                 </template>
