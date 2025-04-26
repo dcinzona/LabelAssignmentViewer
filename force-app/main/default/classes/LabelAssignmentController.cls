@@ -98,4 +98,49 @@ public with sharing class LabelAssignmentController {
             throw new AuraHandledException('Error retrieving Label Assignments: ' + e.getMessage());
         }
     }
+    
+    /**
+     * @description Delete a UserDefinedLabelAssignment record
+     * @param assignmentId The Id of the UserDefinedLabelAssignment to delete
+     * @return void
+     */
+    @AuraEnabled
+    public static void deleteAssignment(String assignmentId) {
+        try {
+            if (String.isBlank(assignmentId)) {
+                throw new AuraHandledException('Assignment ID cannot be blank');
+            }
+            
+            // Query the assignment to ensure it exists and is accessible
+            List<UserDefinedLabelAssignment> assignments = [
+                SELECT Id, LabelId 
+                FROM UserDefinedLabelAssignment 
+                WHERE Id = :assignmentId
+                LIMIT 1
+            ];
+            
+            if (assignments.isEmpty()) {
+                throw new AuraHandledException('Assignment not found with ID: ' + assignmentId);
+            }
+            
+            // Get the label to verify ownership (if needed)
+            UserDefinedLabel label = [
+                SELECT Id, OwnerId 
+                FROM UserDefinedLabel 
+                WHERE Id = :assignments[0].LabelId
+                LIMIT 1
+            ];
+            
+            // Verify the current user is the owner of the label
+            if (label.OwnerId != UserInfo.getUserId()) {
+                throw new AuraHandledException('You do not have permission to delete this assignment');
+            }
+            
+            // Delete the assignment
+            delete assignments[0];
+            
+        } catch (Exception e) {
+            throw new AuraHandledException('Error deleting assignment: ' + e.getMessage());
+        }
+    }
 }

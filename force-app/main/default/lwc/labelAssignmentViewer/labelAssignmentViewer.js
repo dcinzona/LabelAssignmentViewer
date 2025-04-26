@@ -1,9 +1,12 @@
 import { LightningElement, wire, track } from 'lwc';
 import { refreshApex } from '@salesforce/apex';
+import { NavigationMixin } from 'lightning/navigation';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getUserDefinedLabels from '@salesforce/apex/LabelAssignmentController.getUserDefinedLabels';
 import getLabelAssignments from '@salesforce/apex/LabelAssignmentController.getLabelAssignments';
+import deleteAssignment from '@salesforce/apex/LabelAssignmentController.deleteAssignment';
 
-export default class LabelAssignmentViewer extends LightningElement {
+export default class LabelAssignmentViewer extends NavigationMixin(LightningElement) {
     @track labelOptions = [];
     @track selectedLabelId;
     @track assignments = [];
@@ -14,9 +17,29 @@ export default class LabelAssignmentViewer extends LightningElement {
     @track labelsWireResult;
     @track assignmentsWireResult;
     @track lastRefreshed = new Date();
+    @track sortBy;
+    @track sortDirection = 'asc';
     
     // Maximum number of records to show without pagination
     maxRecords = 100;
+    
+    // Row actions
+    rowActions = [
+        { label: 'View Record', name: 'view_record' },
+        { label: 'Delete', name: 'delete' }
+    ];
+    
+    // Object icon mapping
+    objectIconMap = {
+        'Case': 'standard:case',
+        'Account': 'standard:account',
+        'Contact': 'standard:contact',
+        'Opportunity': 'standard:opportunity',
+        'Lead': 'standard:lead',
+        'Task': 'standard:task',
+        'Event': 'standard:event',
+        'Custom': 'standard:custom'
+    };
     
     connectedCallback() {
         // Initialize filtered assignments
@@ -25,50 +48,63 @@ export default class LabelAssignmentViewer extends LightningElement {
     }
 
     // DataTable columns configuration with related list styling
-    columns = [
-        { 
-            label: 'Assignment ID', 
-            fieldName: 'Id', 
-            type: 'text',
-            hideDefaultActions: true,
-            wrapText: false,
-            cellAttributes: { 
-                alignment: 'left'
+    get columns() {
+        return [
+            { 
+                label: 'Subject/Name', 
+                fieldName: 'recordUrl',
+                type: 'url',
+                typeAttributes: {
+                    label: { fieldName: 'SubjectOrName' },
+                    target: '_blank',
+                    tooltip: { fieldName: 'SubjectOrName' }
+                },
+                sortable: true,
+                iconName: { fieldName: 'iconName' },
+                cellAttributes: { 
+                    class: { fieldName: 'subjectClass' },
+                    alignment: 'left',
+                    iconName: { fieldName: 'iconName' },
+                    iconPosition: 'left',
+                    iconAlternativeText: { fieldName: 'EntityType' }
+                }
+            },
+            { 
+                label: 'Entity Type', 
+                fieldName: 'EntityType', 
+                type: 'text',
+                sortable: true,
+                cellAttributes: { 
+                    alignment: 'left'
+                }
+            },
+            { 
+                label: 'Item ID', 
+                fieldName: 'ItemId', 
+                type: 'text',
+                sortable: true,
+                cellAttributes: { 
+                    class: { fieldName: 'itemIdClass' },
+                    alignment: 'left'
+                }
+            },
+            { 
+                label: 'Assignment ID', 
+                fieldName: 'Id', 
+                type: 'text',
+                sortable: true,
+                cellAttributes: { 
+                    alignment: 'left'
+                }
+            },
+            {
+                type: 'action',
+                typeAttributes: {
+                    rowActions: this.rowActions
+                }
             }
-        },
-        { 
-            label: 'Item ID', 
-            fieldName: 'ItemId', 
-            type: 'text',
-            hideDefaultActions: true,
-            wrapText: false,
-            cellAttributes: { 
-                class: { fieldName: 'itemIdClass' },
-                alignment: 'left'
-            }
-        },
-        { 
-            label: 'Entity Type', 
-            fieldName: 'EntityType', 
-            type: 'text',
-            hideDefaultActions: true,
-            wrapText: false,
-            cellAttributes: { 
-                alignment: 'left'
-            }
-        },
-        { 
-            label: 'Subject/Name', 
-            fieldName: 'SubjectOrName', 
-            type: 'text',
-            hideDefaultActions: true,
-            wrapText: true,
-            cellAttributes: { 
-                class: { fieldName: 'subjectClass' },
-                alignment: 'left'
-            }
-        }
-    ];
+        ];
+    }
 
     // Wire service to get UserDefinedLabel records for the combobox
     @wire(getUserDefinedLabels)
@@ -100,6 +136,7 @@ export default class LabelAssignmentViewer extends LightningElement {
         if (data) {
             // Process and enhance records before assigning
             this.assignments = this.processAssignments(data);
+            this.sortData(this.sortBy, this.sortDirection);
             this.filterAssignments();
             this.error = undefined;
             this.lastRefreshed = new Date();
@@ -117,11 +154,19 @@ export default class LabelAssignmentViewer extends LightningElement {
             // Create a shallow clone of the record
             const enhancedRecord = { ...record };
             
+            // Set the icon based on the EntityType
+            let iconName = this.objectIconMap[record.EntityType] || 'standard:custom';
+            enhancedRecord.iconName = iconName;
+            
+            // Set recordUrl for navigation
+            enhancedRecord.recordUrl = `/${record.ItemId}`;
+            
             // Add styling classes based on record type
             if (record.ItemId && record.ItemId.startsWith('500')) {
                 // This is a Case record
                 enhancedRecord.itemIdClass = 'slds-text-color_success';
-                enhancedRecord.subjectClass = 'slds-text-color_success slds-text-title_bold';
+                enhancedRecord.subjectClass = 'slds-text-color_success';
+                enhancedRecord.iconName = 'standard:case';
             }
             
             return enhancedRecord;
@@ -156,6 +201,120 @@ export default class LabelAssignmentViewer extends LightningElement {
             // Search across all string fields (ignoring date fields)
             return this.searchInRecord(record, searchTerm);
         });
+    }
+    
+    // Handle row actions (View/Delete)
+    handleRowAction(event) {
+        const action = event.detail.action;
+        const row = event.detail.row;
+        
+        switch (action.name) {
+            case 'view_record':
+                this.navigateToRecord(row.ItemId);
+                break;
+                
+            case 'delete':
+                this.confirmDelete(row);
+                break;
+                
+            default:
+                break;
+        }
+    }
+    
+    // Navigate to record detail page
+    navigateToRecord(recordId) {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: recordId,
+                actionName: 'view'
+            }
+        });
+    }
+    
+    // Show confirmation dialog for delete
+    confirmDelete(row) {
+        if (confirm(`Are you sure you want to delete this assignment?`)) {
+            this.deleteAssignment(row.Id);
+        }
+    }
+    
+    // Delete the assignment record
+    deleteAssignment(assignmentId) {
+        this.isLoading = true;
+        
+        deleteAssignment({ assignmentId: assignmentId })
+            .then(() => {
+                // Show success toast
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: 'Assignment was deleted',
+                        variant: 'success'
+                    })
+                );
+                
+                // Refresh data
+                return this.refreshData();
+            })
+            .catch(error => {
+                // Show error toast
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error deleting assignment',
+                        message: this.reduceErrors(error),
+                        variant: 'error'
+                    })
+                );
+                this.isLoading = false;
+            });
+    }
+    
+    // Handle column sorting
+    handleSort(event) {
+        this.sortBy = event.detail.fieldName;
+        this.sortDirection = event.detail.sortDirection;
+        this.sortData(this.sortBy, this.sortDirection);
+    }
+    
+    // Sort the data based on field and direction
+    sortData(fieldName, direction) {
+        if (!fieldName) {
+            // Default sort is by Subject/Name
+            fieldName = 'SubjectOrName';
+            direction = 'asc';
+        }
+        
+        // Handle URL field special case
+        if (fieldName === 'recordUrl') {
+            fieldName = 'SubjectOrName';
+        }
+        
+        const cloneData = [...this.assignments];
+        
+        cloneData.sort((a, b) => {
+            return this.sortBy(a, b, fieldName, direction);
+        });
+        
+        this.assignments = cloneData;
+        this.filterAssignments();
+    }
+    
+    // Helper comparison function for sorting
+    sortBy(a, b, field, sortDirection) {
+        const valueA = a[field] ? a[field].toString().toLowerCase() : '';
+        const valueB = b[field] ? b[field].toString().toLowerCase() : '';
+        
+        let sortResult = 0;
+        if (valueA > valueB) {
+            sortResult = 1;
+        }
+        if (valueA < valueB) {
+            sortResult = -1;
+        }
+        
+        return sortDirection === 'asc' ? sortResult : -sortResult;
     }
     
     // Helper method to search within a record

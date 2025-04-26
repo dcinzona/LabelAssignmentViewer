@@ -137,6 +137,10 @@
                         columns={columns}
                         hide-checkbox-column
                         resize-column-disabled
+                        onrowaction={handleRowAction}
+                        onsort={handleSort}
+                        sorted-by={sortBy}
+                        sorted-direction={sortDirection}
                         class="slds-table_bordered slds-table_fixed-layout slds-table_header-fixed">
                     </lightning-datatable>
                 </div>
