@@ -65,11 +65,78 @@
                 </div>
             </template>
 
-            <!-- Assignment DataTable Component -->
-            <c-assignment-data-table
-                label-id={selectedLabelId}
-                label-name={selectedLabelName}>
-            </c-assignment-data-table>
+            <!-- Empty state message when no label is selected -->
+            <template if:true={showEmptySelectionState}>
+                <div class="slds-illustration slds-illustration_small slds-p-around_small slds-m-horizontal_x-small slds-box slds-theme_shade">
+                    <div class="slds-text-longform">
+                        <h3 class="slds-text-heading_small">Select a label to view assignments</h3>
+                        <p class="slds-text-body_small">Choose a User Defined Label from the dropdown above.</p>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Empty state message when no assignments found -->
+            <template if:true={showNoAssignmentsState}>
+                <div class="slds-illustration slds-illustration_small slds-p-around_small slds-m-horizontal_x-small slds-box slds-theme_shade">
+                    <div class="slds-text-longform">
+                        <h3 class="slds-text-heading_small">No assignments found</h3>
+                        <template if:true={isSearching}>
+                            <p class="slds-text-body_small">No assignments match your search criteria. Try a different search term.</p>
+                        </template>
+                        <template if:false={isSearching}>
+                            <p class="slds-text-body_small">There are no assignments for the selected label.</p>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Data table for assignments -->
+            <template if:true={showDataTable}>
+                <!-- Count indicator -->
+                <div class="slds-p-horizontal_x-small">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small">
+                        <div class="slds-col">
+                            <div class="slds-text-color_weak slds-text-body_small">
+                                <template if:true={isSearching}>
+                                    Showing {filteredAssignments.length} of {assignments.length} items
+                                </template>
+                                <template if:false={isSearching}>
+                                    {assignments.length} item<template if:true={showPlural}>s</template>
+                                </template>
+                                • Updated {formattedDateTime}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data table with related list styling -->
+                <div class="slds-border_top">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={filteredAssignments}
+                        columns={columns}
+                        resize-column-disabled
+                        onrowaction={handleRowAction}
+                        onsort={handleSort}
+                        sorted-by={sortBy}
+                        sorted-direction={sortDirection}
+                        class="">
+                    </lightning-datatable>
+                </div>
+                
+                <!-- Footer with pagination -->
+                <div class="slds-p-horizontal_x-small">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small slds-border_top">
+                        <div class="slds-col">
+                            <div class="slds-text-color_weak slds-text-body_small">
+                                <template if:true={hasMoreRecords}>
+                                    Showing {paginationInfo}
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
     </article>
 </template>
