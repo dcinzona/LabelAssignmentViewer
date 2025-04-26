@@ -7,7 +7,7 @@
                 <div class="slds-page-header__col-title">
                     <div class="slds-media">
                         <div class="slds-media__figure">
-                            <lightning-icon icon-name="standard:label" alternative-text="Label Assignments" size="medium"></lightning-icon>
+                            <lightning-icon icon-name="standard:labels" alternative-text="Label Assignments" size="medium"></lightning-icon>
                         </div>
                         <div class="slds-media__body">
                             <div class="slds-page-header__name">
@@ -45,7 +45,7 @@
                         placeholder="Search in assignments..."
                         value={searchTerm}
                         onchange={handleSearchChange}
-                        disabled={!showDataTable}
+                        disabled={dontShowDataTable}
                         class="slds-m-bottom_small">
                     </lightning-input>
                 </div>

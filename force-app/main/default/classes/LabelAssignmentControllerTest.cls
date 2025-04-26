@@ -23,21 +23,22 @@ private class LabelAssignmentControllerTest {
             Origin = 'Web'
         );
         insert testCase;
+
+        Account testAccount = new Account(
+            Name = 'Test Account'
+        );
+        insert testAccount;
         
         // Create UserDefinedLabelAssignment for Case
         UserDefinedLabelAssignment caseAssignment = new UserDefinedLabelAssignment(
-            UserDefinedLabelId = testLabel.Id,
-            ItemId = testCase.Id,
-            EntityType = 'Case',
-            SubjectOrName = 'Original Subject'  // This will be overridden in the controller
+            LabelId = testLabel.Id,
+            ItemId = testCase.Id// This will be overridden in the controller
         );
         
         // Create UserDefinedLabelAssignment for non-Case record
         UserDefinedLabelAssignment regularAssignment = new UserDefinedLabelAssignment(
-            UserDefinedLabelId = testLabel.Id,
-            ItemId = '001000000000001',  // Dummy Account ID (001 prefix)
-            EntityType = 'Account',
-            SubjectOrName = 'Test Account'
+            LabelId = testLabel.Id,
+            ItemId = testAccount.Id
         );
         
         insert new List<UserDefinedLabelAssignment>{caseAssignment, regularAssignment};

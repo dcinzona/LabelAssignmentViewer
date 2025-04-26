@@ -1,0 +1,25 @@
+minimum_cumulusci_version: '4.3.0'
+project:
+    name: LabelAssignmentViewer
+    package:
+        name: LabelAssignmentViewer
+        api_version: '62.0'
+    git:
+        default_branch: 'main'
+    source_format: sfdx
+
+tasks:
+    robot:
+        options:
+            suites: robot/LabelAssignmentViewer/tests
+            options:
+                outputdir: robot/LabelAssignmentViewer/results
+
+    robot_testdoc:
+        options:
+            path: robot/LabelAssignmentViewer/tests
+            output: robot/LabelAssignmentViewer/doc/LabelAssignmentViewer_tests.html
+
+    run_tests:
+        options:
+            required_org_code_coverage_percent: 75

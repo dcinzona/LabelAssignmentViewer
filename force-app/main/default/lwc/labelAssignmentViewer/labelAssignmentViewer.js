@@ -190,6 +190,11 @@ export default class LabelAssignmentViewer extends LightningElement {
                this.assignments && this.assignments.length > 0 && 
                (!this.isSearching || (this.isSearching && this.filteredAssignments.length > 0));
     }
+
+    get dontShowDataTable() {
+        return this.isLoading || this.error || !this.selectedLabelId || 
+               (this.assignments && this.assignments.length === 0);
+    }
     
     // Computed property to determine if we're in a search state
     get isSearching() {

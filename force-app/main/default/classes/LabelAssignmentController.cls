@@ -37,7 +37,7 @@ public with sharing class LabelAssignmentController {
             List<UserDefinedLabelAssignment> assignments = [
                 SELECT Id, ItemId, EntityType, SubjectOrName
                 FROM UserDefinedLabelAssignment
-                WHERE UserDefinedLabelId = :labelId
+                WHERE LabelId = :labelId
                 ORDER BY SubjectOrName ASC
             ];
             
@@ -49,12 +49,14 @@ public with sharing class LabelAssignmentController {
             
             // First pass: identify which records are Cases based on their ItemId
             for (UserDefinedLabelAssignment assign : assignments) {
-                if (assign.ItemId != null && assign.ItemId.startsWith('500')) {
+                String itemId = (String)assign.ItemId;
+                if (assign.ItemId != null && ItemId.startsWith('500')) {
                     try {
                         Id caseId = Id.valueOf(assign.ItemId);
                         caseIds.add(caseId);
                     } catch (Exception e) {
                         // Not a valid ID, skip
+                        System.debug('Invalid Case ID: ' + assign.ItemId);
                     }
                 }
             }
@@ -78,8 +80,9 @@ public with sharing class LabelAssignmentController {
                     'SubjectOrName' => assign.SubjectOrName
                 };
                 
+                String itemId = (String)assign.ItemId;
                 // If this is a Case, enhance the data
-                if (assign.ItemId != null && assign.ItemId.startsWith('500') && casesMap.containsKey(assign.ItemId)) {
+                if (assign.ItemId != null && itemId.startsWith('500') && casesMap.containsKey(assign.ItemId)) {
                     Case caseRecord = casesMap.get(assign.ItemId);
                     enrichedRecord.put('SubjectOrName', caseRecord.CaseNumber + ' - ' + caseRecord.Subject);
                     enrichedRecord.put('IsCaseRecord', true);
