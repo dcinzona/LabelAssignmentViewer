@@ -52,21 +52,22 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
         return [
             { 
                 label: 'Subject/Name', 
-                fieldName: 'recordUrl',
-                type: 'url',
+                fieldName: 'SubjectOrName',
+                type: 'button',
                 typeAttributes: {
                     label: { fieldName: 'SubjectOrName' },
-                    target: '_blank',
-                    tooltip: { fieldName: 'SubjectOrName' }
+                    name: 'view_record',
+                    variant: 'base',
+                    iconName: { fieldName: 'iconName' },
+                    iconPosition: 'left'
                 },
                 sortable: true,
-                iconName: { fieldName: 'iconName' },
                 cellAttributes: { 
                     class: { fieldName: 'subjectClass' },
-                    alignment: 'left',
-                    iconName: { fieldName: 'iconName' },
-                    iconPosition: 'left',
-                    iconAlternativeText: { fieldName: 'EntityType' }
+                    alignment: 'left'
+                },
+                actions: {
+                    handleRowAction: this.navigateToRecord.bind(this)
                 }
             },
             { 
@@ -203,12 +204,12 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
         });
     }
     
-    // Handle row actions (View/Delete)
+    // Handle row actions (View/Delete) or button click for SubjectOrName
     handleRowAction(event) {
-        const action = event.detail.action;
+        const actionName = event.detail.action ? event.detail.action.name : event.detail.actionName;
         const row = event.detail.row;
         
-        switch (action.name) {
+        switch (actionName) {
             case 'view_record':
                 this.navigateToRecord(row.ItemId);
                 break;
@@ -223,7 +224,10 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     }
     
     // Navigate to record detail page
-    navigateToRecord(recordId) {
+    navigateToRecord(rowOrId) {
+        // Handle if we're passed a row object or just an ID
+        const recordId = typeof rowOrId === 'object' ? rowOrId.ItemId : rowOrId;
+        
         this[NavigationMixin.Navigate]({
             type: 'standard__recordPage',
             attributes: {
