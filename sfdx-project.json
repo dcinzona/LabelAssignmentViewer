@@ -1,0 +1,19 @@
+{
+  "packageDirectories": [
+    {
+      "path": "force-app",
+      "default": true,
+      "package": "LabelAssignmentViewer",
+      "versionName": "Version 1.0",
+      "versionNumber": "1.0.0.NEXT",
+      "versionDescription": "A Lightning Web Component for viewing UserDefinedLabel assignments including special handling for Case records"
+    }
+  ],
+  "name": "LabelAssignmentViewer",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "59.0",
+  "packageAliases": {
+    "LabelAssignmentViewer": "0Ho000000000000"
+  }
+}
