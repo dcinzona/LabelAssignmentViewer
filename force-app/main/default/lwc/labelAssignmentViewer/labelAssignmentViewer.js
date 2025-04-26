@@ -22,12 +22,9 @@ export default class LabelAssignmentViewer extends LightningElement {
     // DataTable columns configuration
     columns = [
         { label: 'Assignment ID', fieldName: 'Id', type: 'text' },
-        { label: 'Name', fieldName: 'Name', type: 'text' },
-        { label: 'Record ID', fieldName: 'RecordId', type: 'text' },
-        { label: 'Object Name', fieldName: 'ObjectName', type: 'text' },
-        { label: 'Value', fieldName: 'Value', type: 'text' },
-        { label: 'Created Date', fieldName: 'CreatedDate', type: 'date' },
-        { label: 'Last Modified Date', fieldName: 'LastModifiedDate', type: 'date' }
+        { label: 'Item ID', fieldName: 'ItemId', type: 'text' },
+        { label: 'Entity Type', fieldName: 'EntityType', type: 'text' },
+        { label: 'Subject/Name', fieldName: 'SubjectOrName', type: 'text' }
     ];
 
     // Wire service to get UserDefinedLabel records for the combobox
@@ -39,7 +36,7 @@ export default class LabelAssignmentViewer extends LightningElement {
         if (data) {
             this.labelOptions = data.map(label => {
                 return {
-                    label: label.Name,
+                    label: `${label.Name} (${label.TotalAssignments || 0})`,
                     value: label.Id
                 };
             });
@@ -102,7 +99,7 @@ export default class LabelAssignmentViewer extends LightningElement {
     // Helper method to search within a record
     searchInRecord(record, searchTerm) {
         // Fields to search in
-        const searchableFields = ['Name', 'RecordId', 'ObjectName', 'Value'];
+        const searchableFields = ['Id', 'ItemId', 'EntityType', 'SubjectOrName'];
         
         // Check if any field contains the search term
         return searchableFields.some(field => {
