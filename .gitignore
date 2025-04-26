@@ -1,0 +1,34 @@
+# Salesforce DX specific
+.sfdx/
+.sf/
+.localdevserver/
+
+# LWC compiled resources
+**/lwc/**/*.js.map
+
+# Node.js dependencies
+node_modules/
+
+# IDE specific files
+.idea/
+.vscode/
+*.iml
+*.iws
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Security files
+.pem
+.key
+
+# SFDX diagnostic output
+debugOutput.json
