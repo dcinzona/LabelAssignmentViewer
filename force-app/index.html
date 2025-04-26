@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salesforce Label Assignment Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.20.1/styles/salesforce-lightning-design-system.min.css" />
+    <style>
+        body {
+            padding: 2rem;
+            background-color: #f3f3f3;
+        }
+        .component-preview {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .code-block {
+            background-color: #f8f8f8;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        .feature-list {
+            margin: 1rem 0;
+        }
+        .feature-item {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+        .feature-icon {
+            margin-right: 0.5rem;
+            color: #04844b;
+        }
+        .section {
+            margin-bottom: 2rem;
+        }
+        .center-content {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .mock-image {
+            max-width: 100%;
+            border: 1px solid #d8dde6;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slds-scope">
+        <div class="slds-grid slds-gutters">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_8-of-12 slds-large-size_8-of-12 slds-m-bottom_large">
+                <div class="slds-text-heading_large slds-m-bottom_medium">Salesforce Label Assignment Viewer</div>
+                
+                <div class="section">
+                    <div class="slds-text-heading_medium slds-m-bottom_small">Component Overview</div>
+                    <p>
+                        The Label Assignment Viewer is a Salesforce Lightning Web Component (LWC) that displays UserDefinedLabelAssignment records related to a selected UserDefinedLabel in a standard Salesforce related list format.
+                    </p>
+                </div>
+
+                <div class="section">
+                    <div class="slds-text-heading_medium slds-m-bottom_small">Features</div>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div>Label selector using a combobox with counts of related assignments</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div>Datatable with sortable columns and special formatting for Case records</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div>SubjectOrName field as first column with clickable links and object-specific icons</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div>Row-level actions to delete assignment records or view target records</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div>Search functionality to filter assignments</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✓</div>
+                            <div>Responsive design with proper empty and loading states</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="slds-text-heading_medium slds-m-bottom_small">Visual Representation</div>
+                    <div class="component-preview">
+                        <div class="slds-card">
+                            <div class="slds-card__header slds-grid">
+                                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                    <div class="slds-media__figure">
+                                        <span class="slds-icon_container slds-icon-standard-custom">
+                                            <svg class="slds-icon slds-icon_small" aria-hidden="true">
+                                                <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#custom"></use>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="slds-media__body">
+                                        <h2 class="slds-card__header-title">
+                                            <span>Label Assignments</span>
+                                        </h2>
+                                    </div>
+                                    <div class="slds-no-flex">
+                                        <button class="slds-button slds-button_neutral">Refresh</button>
+                                    </div>
+                                </header>
+                            </div>
+                            <div class="slds-card__body slds-card__body_inner">
+                                <div class="slds-form-element">
+                                    <label class="slds-form-element__label">Select a Label</label>
+                                    <div class="slds-form-element__control">
+                                        <div class="slds-select_container">
+                                            <select class="slds-select">
+                                                <option value="">-- Select --</option>
+                                                <option value="1">Production Issue (3)</option>
+                                                <option value="2">Customer Inquiry (7)</option>
+                                                <option value="3">Billing Question (2)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="slds-m-top_medium">
+                                    <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_x-small">
+                                        <div class="slds-col">
+                                            <span class="slds-text-title_caps">7 items • Updated 10:42 AM</span>
+                                        </div>
+                                        <div class="slds-col slds-grid slds-grid_align-end">
+                                            <div class="slds-form-element">
+                                                <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">
+                                                    <svg class="slds-icon slds-input__icon slds-input__icon_left slds-icon-text-default" aria-hidden="true">
+                                                        <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#search"></use>
+                                                    </svg>
+                                                    <input type="text" class="slds-input" placeholder="Search assignments..." />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                                        <thead>
+                                            <tr class="slds-line-height_reset">
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" title="Subject/Name">Subject/Name</div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" title="Entity Type">Entity Type</div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" title="Item ID">Item ID</div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" title="Assignment ID">Assignment ID</div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" title="Actions">Actions</div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="slds-hint-parent">
+                                                <td data-label="Subject/Name">
+                                                    <div class="slds-grid slds-grid_vertical-align-center">
+                                                        <span class="slds-icon_container slds-icon-standard-case slds-m-right_x-small">
+                                                            <svg class="slds-icon slds-icon_small" aria-hidden="true">
+                                                                <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#case"></use>
+                                                            </svg>
+                                                        </span>
+                                                        <a href="javascript:void(0);">00001234 - Customer needs help with login</a>
+                                                    </div>
+                                                </td>
+                                                <td data-label="Entity Type">Case</td>
+                                                <td data-label="Item ID">5001a000001YsLKAA0</td>
+                                                <td data-label="Assignment ID">a021a000003XbW3AAK</td>
+                                                <td data-label="Actions">
+                                                    <button class="slds-button slds-button_icon slds-button_icon-border-filled" title="Show actions">
+                                                        <svg class="slds-button__icon" aria-hidden="true">
+                                                            <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#down"></use>
+                                                        </svg>
+                                                        <span class="slds-assistive-text">Show actions</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr class="slds-hint-parent">
+                                                <td data-label="Subject/Name">
+                                                    <div class="slds-grid slds-grid_vertical-align-center">
+                                                        <span class="slds-icon_container slds-icon-standard-account slds-m-right_x-small">
+                                                            <svg class="slds-icon slds-icon_small" aria-hidden="true">
+                                                                <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#account"></use>
+                                                            </svg>
+                                                        </span>
+                                                        <a href="javascript:void(0);">Acme Corporation</a>
+                                                    </div>
+                                                </td>
+                                                <td data-label="Entity Type">Account</td>
+                                                <td data-label="Item ID">0011a00000GcVDrAAN</td>
+                                                <td data-label="Assignment ID">a021a000003XbW4AAK</td>
+                                                <td data-label="Actions">
+                                                    <button class="slds-button slds-button_icon slds-button_icon-border-filled" title="Show actions">
+                                                        <svg class="slds-button__icon" aria-hidden="true">
+                                                            <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#down"></use>
+                                                        </svg>
+                                                        <span class="slds-assistive-text">Show actions</span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="slds-text-heading_medium slds-m-bottom_small">Implementation Details</div>
+                    <p>
+                        The component consists of three key files:
+                    </p>
+                    <ul class="slds-list_dotted slds-m-left_medium slds-m-bottom_medium">
+                        <li><strong>labelAssignmentViewer.js</strong> - The JavaScript controller handling data fetching, processing and user interactions</li>
+                        <li><strong>labelAssignmentViewer.html</strong> - The HTML template defining the component's structure and appearance</li>
+                        <li><strong>LabelAssignmentController.cls</strong> - The Apex controller providing data services</li>
+                    </ul>
+                    
+                    <p>
+                        Special handling is implemented for Case records, where the SubjectOrName field is dynamically formatted to show the CaseNumber and Subject. 
+                        Object-specific icons are shown based on the record type, and users can interact with records via row actions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
