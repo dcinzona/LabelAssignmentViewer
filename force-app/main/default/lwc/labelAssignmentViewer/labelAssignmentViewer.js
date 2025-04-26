@@ -7,10 +7,17 @@ export default class LabelAssignmentViewer extends LightningElement {
     @track labelOptions = [];
     @track selectedLabelId;
     @track assignments = [];
+    @track filteredAssignments = [];
+    @track searchTerm = '';
     @track error;
     @track isLoading = true;
     @track labelsWireResult;
     @track assignmentsWireResult;
+    
+    connectedCallback() {
+        // Initialize filtered assignments
+        this.filteredAssignments = this.assignments;
+    }
 
     // DataTable columns configuration
     columns = [
@@ -52,10 +59,12 @@ export default class LabelAssignmentViewer extends LightningElement {
         
         if (data) {
             this.assignments = data;
+            this.filterAssignments();
             this.error = undefined;
         } else if (error) {
             this.error = 'Error loading assignments: ' + this.reduceErrors(error);
             this.assignments = [];
+            this.filteredAssignments = [];
         }
         this.isLoading = false;
     }
@@ -64,6 +73,42 @@ export default class LabelAssignmentViewer extends LightningElement {
     handleLabelChange(event) {
         this.isLoading = true;
         this.selectedLabelId = event.detail.value;
+        this.searchTerm = ''; // Reset search when label changes
+    }
+    
+    // Handle search term change
+    handleSearchChange(event) {
+        this.searchTerm = event.target.value;
+        this.filterAssignments();
+    }
+    
+    // Filter assignments based on search term
+    filterAssignments() {
+        const searchTerm = this.searchTerm.toLowerCase();
+        
+        if (!searchTerm) {
+            // If no search term, show all assignments
+            this.filteredAssignments = this.assignments;
+            return;
+        }
+        
+        // Filter assignments that match the search term in any field
+        this.filteredAssignments = this.assignments.filter(record => {
+            // Search across all string fields (ignoring date fields)
+            return this.searchInRecord(record, searchTerm);
+        });
+    }
+    
+    // Helper method to search within a record
+    searchInRecord(record, searchTerm) {
+        // Fields to search in
+        const searchableFields = ['Name', 'RecordId', 'ObjectName', 'Value'];
+        
+        // Check if any field contains the search term
+        return searchableFields.some(field => {
+            const value = record[field];
+            return value && value.toString().toLowerCase().includes(searchTerm);
+        });
     }
 
     // Helper method to reduce errors to a string
@@ -97,6 +142,10 @@ export default class LabelAssignmentViewer extends LightningElement {
 
     // Computed property to determine if we should show the no assignments state
     get showNoAssignmentsState() {
+        if (this.isSearching && this.assignments.length > 0 && this.filteredAssignments.length === 0) {
+            // When searching and no results found, but assignments exist
+            return true;
+        }
         return !this.isLoading && !this.error && this.selectedLabelId && 
                this.assignments && this.assignments.length === 0;
     }
@@ -104,7 +153,13 @@ export default class LabelAssignmentViewer extends LightningElement {
     // Computed property to determine if we should show the datatable
     get showDataTable() {
         return !this.isLoading && !this.error && this.selectedLabelId && 
-               this.assignments && this.assignments.length > 0;
+               this.assignments && this.assignments.length > 0 && 
+               (!this.isSearching || (this.isSearching && this.filteredAssignments.length > 0));
+    }
+    
+    // Computed property to determine if we're in a search state
+    get isSearching() {
+        return this.searchTerm && this.searchTerm.length > 0;
     }
 
     // Method to refresh the component data

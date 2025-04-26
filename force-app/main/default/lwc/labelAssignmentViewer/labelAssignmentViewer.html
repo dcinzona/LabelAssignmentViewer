@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <!-- Filter section with combobox -->
+        <!-- Filter section with combobox and search field -->
         <div class="slds-card__body slds-card__body_inner">
             <div class="slds-grid slds-gutters slds-m-bottom_medium">
                 <div class="slds-col slds-size_1-of-3">
@@ -37,6 +37,17 @@
                         disabled={isLoading}
                         class="slds-m-bottom_small">
                     </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-input
+                        type="search"
+                        label="Search"
+                        placeholder="Search in assignments..."
+                        value={searchTerm}
+                        onchange={handleSearchChange}
+                        disabled={!showDataTable}
+                        class="slds-m-bottom_small">
+                    </lightning-input>
                 </div>
             </div>
 
@@ -73,16 +84,28 @@
                 <div class="slds-illustration slds-illustration_small slds-p-around_medium">
                     <div class="slds-text-longform">
                         <h3 class="slds-text-heading_medium">No assignments found</h3>
-                        <p class="slds-text-body_regular">There are no assignments for the selected label.</p>
+                        <template if:true={isSearching}>
+                            <p class="slds-text-body_regular">No assignments match your search criteria. Try a different search term.</p>
+                        </template>
+                        <template if:false={isSearching}>
+                            <p class="slds-text-body_regular">There are no assignments for the selected label.</p>
+                        </template>
                     </div>
                 </div>
             </template>
 
             <!-- Data table for assignments -->
             <template if:true={showDataTable}>
+                <div class="slds-m-bottom_small">
+                    <template if:true={isSearching}>
+                        <div class="slds-text-body_small slds-m-bottom_x-small">
+                            Showing {filteredAssignments.length} of {assignments.length} records
+                        </div>
+                    </template>
+                </div>
                 <lightning-datatable
                     key-field="id"
-                    data={assignments}
+                    data={filteredAssignments}
                     columns={columns}
                     hide-checkbox-column
                     resize-column-disabled>

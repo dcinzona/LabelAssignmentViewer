@@ -12,8 +12,9 @@ public with sharing class LabelAssignmentController {
     public static List<UserDefinedLabel> getUserDefinedLabels() {
         try {
             return [
-                SELECT Id, Name, Description
+                SELECT Id, Name, TotalAssignments
                 FROM UserDefinedLabel
+                WHERE OwnerId = :Userinfo.getUserId()
                 ORDER BY Name ASC
             ];
         } catch (Exception e) {
@@ -34,7 +35,7 @@ public with sharing class LabelAssignmentController {
             }
             
             return [
-                SELECT Id, Name, RecordId, ObjectName, Value, CreatedDate, LastModifiedDate
+                SELECT Id, ItemId, EntityType, SubjectOrName
                 FROM UserDefinedLabelAssignment
                 WHERE UserDefinedLabelId = :labelId
                 ORDER BY Name ASC
