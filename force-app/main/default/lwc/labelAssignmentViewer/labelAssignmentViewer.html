@@ -1,69 +1,85 @@
 <template>
-    <!-- Main container with list view styling -->
-    <div class="slds-card">
-        <!-- Header section -->
-        <div class="slds-page-header">
-            <div class="slds-page-header__row">
-                <div class="slds-page-header__col-title">
-                    <div class="slds-media">
-                        <div class="slds-media__figure">
-                            <lightning-icon icon-name="standard:labels" alternative-text="Label Assignments" size="medium"></lightning-icon>
-                        </div>
-                        <div class="slds-media__body">
-                            <div class="slds-page-header__name">
-                                <div class="slds-page-header__name-title">
-                                    <h1>
-                                        <span class="slds-page-header__title slds-truncate" title="Label Assignments">Label Assignments</span>
-                                    </h1>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Main container with related list styling -->
+    <article class="slds-card slds-card_boundary">
+        <!-- Card header with related list styling -->
+        <div class="slds-card__header slds-grid">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <!-- Icon -->
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-labels">
+                        <lightning-icon icon-name="standard:labels" alternative-text="Label Assignments" size="small"></lightning-icon>
+                    </span>
                 </div>
-            </div>
+                <!-- Title -->
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        <a href="javascript:void(0);" class="slds-card__header-link slds-truncate" title="Label Assignments">
+                            <span>Label Assignments</span>
+                        </a>
+                    </h2>
+                </div>
+                <!-- Action buttons -->
+                <div class="slds-no-flex">
+                    <lightning-button-icon 
+                        icon-name="utility:refresh" 
+                        alternative-text="Refresh" 
+                        title="Refresh" 
+                        onclick={refreshData}
+                        class="slds-m-left_xx-small"
+                        disabled={isLoading}>
+                    </lightning-button-icon>
+                </div>
+            </header>
         </div>
 
-        <!-- Filter section with combobox and search field -->
-        <div class="slds-card__body slds-card__body_inner">
-            <div class="slds-grid slds-gutters slds-m-bottom_medium">
-                <div class="slds-col slds-size_1-of-3">
-                    <lightning-combobox
-                        name="userDefinedLabel"
-                        label="Select User Defined Label"
-                        value={selectedLabelId}
-                        placeholder="Choose a label"
-                        options={labelOptions}
-                        onchange={handleLabelChange}
-                        disabled={isLoading}
-                        class="slds-m-bottom_small">
-                    </lightning-combobox>
-                </div>
-                <div class="slds-col slds-size_1-of-3">
-                    <lightning-input
-                        type="search"
-                        label="Search"
-                        placeholder="Search in assignments..."
-                        value={searchTerm}
-                        onchange={handleSearchChange}
-                        disabled={dontShowDataTable}
-                        class="slds-m-bottom_small">
-                    </lightning-input>
+        <!-- Card body -->
+        <div class="slds-card__body">
+            <!-- Filter section with combobox and search field -->
+            <div class="slds-p-horizontal_medium slds-p-top_small">
+                <div class="slds-grid slds-gutters slds-wrap">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3">
+                        <lightning-combobox
+                            name="userDefinedLabel"
+                            label="Select User Defined Label"
+                            value={selectedLabelId}
+                            placeholder="Choose a label"
+                            options={labelOptions}
+                            onchange={handleLabelChange}
+                            disabled={isLoading}
+                            variant="label-hidden"
+                            class="slds-m-bottom_x-small">
+                        </lightning-combobox>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3">
+                        <template if:false={dontShowDataTable}>
+                            <lightning-input
+                                type="search"
+                                label="Search"
+                                placeholder="Search in assignments..."
+                                value={searchTerm}
+                                onchange={handleSearchChange}
+                                disabled={dontShowDataTable}
+                                variant="label-hidden"
+                                class="slds-m-bottom_x-small">
+                            </lightning-input>
+                        </template>
+                    </div>
                 </div>
             </div>
 
             <!-- Loading spinner -->
             <template if:true={isLoading}>
                 <div class="slds-is-relative slds-p-around_medium">
-                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                    <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
                 </div>
             </template>
 
             <!-- Error message -->
             <template if:true={error}>
-                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error slds-m-horizontal_x-small" role="alert">
                     <span class="slds-assistive-text">Error</span>
-                    <h2>
-                        <lightning-icon icon-name="utility:error" alternative-text="Error" size="small" class="slds-m-right_x-small"></lightning-icon>
+                    <h2 class="slds-text-body_regular">
+                        <lightning-icon icon-name="utility:error" alternative-text="Error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
                         {error}
                     </h2>
                 </div>
@@ -71,24 +87,24 @@
 
             <!-- Empty state message when no label is selected -->
             <template if:true={showEmptySelectionState}>
-                <div class="slds-illustration slds-illustration_small slds-p-around_medium">
+                <div class="slds-illustration slds-illustration_small slds-p-around_small slds-m-horizontal_x-small slds-box slds-theme_shade">
                     <div class="slds-text-longform">
-                        <h3 class="slds-text-heading_medium">Select a label to view assignments</h3>
-                        <p class="slds-text-body_regular">Choose a User Defined Label from the dropdown above to view its assignments.</p>
+                        <h3 class="slds-text-heading_small">Select a label to view assignments</h3>
+                        <p class="slds-text-body_small">Choose a User Defined Label from the dropdown above.</p>
                     </div>
                 </div>
             </template>
 
             <!-- Empty state message when no assignments found -->
             <template if:true={showNoAssignmentsState}>
-                <div class="slds-illustration slds-illustration_small slds-p-around_medium">
+                <div class="slds-illustration slds-illustration_small slds-p-around_small slds-m-horizontal_x-small slds-box slds-theme_shade">
                     <div class="slds-text-longform">
-                        <h3 class="slds-text-heading_medium">No assignments found</h3>
+                        <h3 class="slds-text-heading_small">No assignments found</h3>
                         <template if:true={isSearching}>
-                            <p class="slds-text-body_regular">No assignments match your search criteria. Try a different search term.</p>
+                            <p class="slds-text-body_small">No assignments match your search criteria. Try a different search term.</p>
                         </template>
                         <template if:false={isSearching}>
-                            <p class="slds-text-body_regular">There are no assignments for the selected label.</p>
+                            <p class="slds-text-body_small">There are no assignments for the selected label.</p>
                         </template>
                     </div>
                 </div>
@@ -96,21 +112,48 @@
 
             <!-- Data table for assignments -->
             <template if:true={showDataTable}>
-                <div class="slds-m-bottom_small">
-                    <template if:true={isSearching}>
-                        <div class="slds-text-body_small slds-m-bottom_x-small">
-                            Showing {filteredAssignments.length} of {assignments.length} records
+                <!-- Count indicator -->
+                <div class="slds-p-horizontal_x-small">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small slds-border_bottom">
+                        <div class="slds-col">
+                            <div class="slds-text-color_weak slds-text-body_small">
+                                <template if:true={isSearching}>
+                                    Showing {filteredAssignments.length} of {assignments.length} items
+                                </template>
+                                <template if:false={isSearching}>
+                                    {assignments.length} item<template if:true={showPlural}>s</template>
+                                </template>
+                                • Updated {formattedDateTime}
+                            </div>
                         </div>
-                    </template>
+                    </div>
                 </div>
-                <lightning-datatable
-                    key-field="id"
-                    data={filteredAssignments}
-                    columns={columns}
-                    hide-checkbox-column
-                    resize-column-disabled>
-                </lightning-datatable>
+                
+                <!-- Data table with related list styling -->
+                <div class="slds-table_header-fixed_container">
+                    <lightning-datatable
+                        key-field="Id"
+                        data={filteredAssignments}
+                        columns={columns}
+                        hide-checkbox-column
+                        resize-column-disabled
+                        class="slds-table_bordered slds-table_fixed-layout slds-table_header-fixed">
+                    </lightning-datatable>
+                </div>
+                
+                <!-- Footer with pagination -->
+                <div class="slds-p-horizontal_x-small">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small slds-border_top">
+                        <div class="slds-col">
+                            <div class="slds-text-color_weak slds-text-body_small">
+                                <template if:true={hasMoreRecords}>
+                                    Showing {paginationInfo}
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </template>
         </div>
-    </div>
+    </article>
 </template>

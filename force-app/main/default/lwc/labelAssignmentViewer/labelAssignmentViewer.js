@@ -13,30 +13,59 @@ export default class LabelAssignmentViewer extends LightningElement {
     @track isLoading = true;
     @track labelsWireResult;
     @track assignmentsWireResult;
+    @track lastRefreshed = new Date();
+    
+    // Maximum number of records to show without pagination
+    maxRecords = 100;
     
     connectedCallback() {
         // Initialize filtered assignments
         this.filteredAssignments = this.assignments;
+        this.lastRefreshed = new Date();
     }
 
-    // DataTable columns configuration
+    // DataTable columns configuration with related list styling
     columns = [
-        { label: 'Assignment ID', fieldName: 'Id', type: 'text' },
+        { 
+            label: 'Assignment ID', 
+            fieldName: 'Id', 
+            type: 'text',
+            hideDefaultActions: true,
+            wrapText: false,
+            cellAttributes: { 
+                alignment: 'left'
+            }
+        },
         { 
             label: 'Item ID', 
             fieldName: 'ItemId', 
             type: 'text',
+            hideDefaultActions: true,
+            wrapText: false,
             cellAttributes: { 
-                class: { fieldName: 'itemIdClass' } 
+                class: { fieldName: 'itemIdClass' },
+                alignment: 'left'
             }
         },
-        { label: 'Entity Type', fieldName: 'EntityType', type: 'text' },
+        { 
+            label: 'Entity Type', 
+            fieldName: 'EntityType', 
+            type: 'text',
+            hideDefaultActions: true,
+            wrapText: false,
+            cellAttributes: { 
+                alignment: 'left'
+            }
+        },
         { 
             label: 'Subject/Name', 
             fieldName: 'SubjectOrName', 
             type: 'text',
+            hideDefaultActions: true,
+            wrapText: true,
             cellAttributes: { 
-                class: { fieldName: 'subjectClass' } 
+                class: { fieldName: 'subjectClass' },
+                alignment: 'left'
             }
         }
     ];
@@ -73,6 +102,7 @@ export default class LabelAssignmentViewer extends LightningElement {
             this.assignments = this.processAssignments(data);
             this.filterAssignments();
             this.error = undefined;
+            this.lastRefreshed = new Date();
         } else if (error) {
             this.error = 'Error loading assignments: ' + this.reduceErrors(error);
             this.assignments = [];
@@ -200,6 +230,33 @@ export default class LabelAssignmentViewer extends LightningElement {
     get isSearching() {
         return this.searchTerm && this.searchTerm.length > 0;
     }
+    
+    // Computed property for pluralization in the items count
+    get showPlural() {
+        return this.assignments.length !== 1;
+    }
+    
+    // Computed property to format the last refreshed time
+    get formattedDateTime() {
+        const now = this.lastRefreshed;
+        return new Intl.DateTimeFormat('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(now);
+    }
+    
+    // Computed property to check if there are more records than the display limit
+    get hasMoreRecords() {
+        return this.filteredAssignments.length > this.maxRecords;
+    }
+    
+    // Computed property for pagination info
+    get paginationInfo() {
+        if (this.hasMoreRecords) {
+            return `1-${this.maxRecords} of ${this.filteredAssignments.length}`;
+        }
+        return null;
+    }
 
     // Method to refresh the component data
     refreshData() {
@@ -209,6 +266,7 @@ export default class LabelAssignmentViewer extends LightningElement {
             refreshApex(this.assignmentsWireResult)
         ]).finally(() => {
             this.isLoading = false;
+            this.lastRefreshed = new Date();
         });
     }
 }
