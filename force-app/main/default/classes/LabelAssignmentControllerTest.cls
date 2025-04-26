@@ -23,22 +23,21 @@ private class LabelAssignmentControllerTest {
             Origin = 'Web'
         );
         insert testCase;
-
-        Account testAccount = new Account(
-            Name = 'Test Account'
-        );
-        insert testAccount;
         
         // Create UserDefinedLabelAssignment for Case
         UserDefinedLabelAssignment caseAssignment = new UserDefinedLabelAssignment(
             LabelId = testLabel.Id,
-            ItemId = testCase.Id// This will be overridden in the controller
+            ItemId = testCase.Id,
+            EntityType = 'Case',
+            SubjectOrName = 'Original Subject'  // This will be overridden in the controller
         );
         
         // Create UserDefinedLabelAssignment for non-Case record
         UserDefinedLabelAssignment regularAssignment = new UserDefinedLabelAssignment(
             LabelId = testLabel.Id,
-            ItemId = testAccount.Id
+            ItemId = '001000000000001',  // Dummy Account ID (001 prefix)
+            EntityType = 'Account',
+            SubjectOrName = 'Test Account'
         );
         
         insert new List<UserDefinedLabelAssignment>{caseAssignment, regularAssignment};
@@ -140,6 +139,76 @@ private class LabelAssignmentControllerTest {
         } catch (AuraHandledException e) {
             System.assert(e.getMessage().contains('Error retrieving Label Assignments'), 
                          'Exception message should indicate error retrieving assignments');
+        }
+        
+        Test.stopTest();
+    }
+    
+    /**
+     * @description Test deleteAssignment method with valid assignment ID
+     */
+    @isTest
+    static void testDeleteAssignment() {
+        // Get test data
+        UserDefinedLabel testLabel = [SELECT Id FROM UserDefinedLabel WHERE Name = 'Test Label' LIMIT 1];
+        UserDefinedLabelAssignment testAssignment = [
+            SELECT Id FROM UserDefinedLabelAssignment 
+            WHERE LabelId = :testLabel.Id AND EntityType = 'Account' 
+            LIMIT 1
+        ];
+        
+        Integer countBefore = [SELECT COUNT() FROM UserDefinedLabelAssignment];
+        
+        Test.startTest();
+        
+        // Delete the assignment
+        LabelAssignmentController.deleteAssignment(testAssignment.Id);
+        
+        Test.stopTest();
+        
+        // Verify the assignment was deleted
+        Integer countAfter = [SELECT COUNT() FROM UserDefinedLabelAssignment];
+        System.assertEquals(countBefore - 1, countAfter, 'Should have one less assignment after deletion');
+        
+        // Verify the specific assignment is gone
+        List<UserDefinedLabelAssignment> remainingAssignments = [
+            SELECT Id FROM UserDefinedLabelAssignment 
+            WHERE Id = :testAssignment.Id
+        ];
+        System.assertEquals(0, remainingAssignments.size(), 'The deleted assignment should not exist');
+    }
+    
+    /**
+     * @description Test deleteAssignment method with empty assignment ID
+     */
+    @isTest
+    static void testDeleteAssignmentWithEmptyId() {
+        Test.startTest();
+        
+        try {
+            LabelAssignmentController.deleteAssignment('');
+            System.assert(false, 'Should have thrown an exception');
+        } catch (AuraHandledException e) {
+            System.assert(e.getMessage().contains('Assignment ID cannot be blank'), 
+                         'Exception message should indicate blank assignment ID');
+        }
+        
+        Test.stopTest();
+    }
+    
+    /**
+     * @description Test deleteAssignment method with invalid assignment ID
+     */
+    @isTest
+    static void testDeleteAssignmentWithInvalidId() {
+        Test.startTest();
+        
+        try {
+            LabelAssignmentController.deleteAssignment('INVALID_ID');
+            System.assert(false, 'Should have thrown an exception');
+        } catch (AuraHandledException e) {
+            System.assert(e.getMessage().contains('Error deleting assignment'), 
+                         'Exception message should indicate error deleting assignment');
         }
         
         Test.stopTest();
