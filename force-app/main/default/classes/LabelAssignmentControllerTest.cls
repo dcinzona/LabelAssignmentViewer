@@ -215,4 +215,120 @@ private class LabelAssignmentControllerTest {
         
         Test.stopTest();
     }
+    
+    /**
+     * @description Test deleteMultipleAssignments method with valid assignment IDs
+     */
+    @isTest
+    static void testDeleteMultipleAssignments() {
+        // Get test data
+        UserDefinedLabel testLabel = [SELECT Id FROM UserDefinedLabel WHERE Name = 'Test Label' LIMIT 1];
+        List<UserDefinedLabelAssignment> assignments = [
+            SELECT Id FROM UserDefinedLabelAssignment 
+            WHERE LabelId = :testLabel.Id
+        ];
+        
+        System.assertEquals(2, assignments.size(), 'Should have 2 test assignments');
+        
+        List<String> assignmentIds = new List<String>();
+        for(UserDefinedLabelAssignment assign : assignments) {
+            assignmentIds.add(assign.Id);
+        }
+        
+        Test.startTest();
+        
+        // Delete the assignments
+        LabelAssignmentController.deleteMultipleAssignments(assignmentIds);
+        
+        Test.stopTest();
+        
+        // Verify the assignments were deleted
+        List<UserDefinedLabelAssignment> remainingAssignments = [
+            SELECT Id FROM UserDefinedLabelAssignment 
+            WHERE LabelId = :testLabel.Id
+        ];
+        
+        System.assertEquals(0, remainingAssignments.size(), 'All assignments should be deleted');
+    }
+    
+    /**
+     * @description Test deleteMultipleAssignments method with empty list
+     */
+    @isTest
+    static void testDeleteMultipleAssignmentsWithEmptyList() {
+        Test.startTest();
+        
+        try {
+            LabelAssignmentController.deleteMultipleAssignments(new List<String>());
+            System.assert(false, 'Should have thrown an exception');
+        } catch (AuraHandledException e) {
+            System.assert(e.getMessage().contains('No assignment IDs provided'), 
+                         'Exception message should indicate no assignments provided');
+        }
+        
+        Test.stopTest();
+    }
+    
+    /**
+     * @description Test deleteLabel method with valid label ID
+     */
+    @isTest
+    static void testDeleteLabel() {
+        // Get test data
+        UserDefinedLabel testLabel = [SELECT Id FROM UserDefinedLabel WHERE Name = 'Test Label' LIMIT 1];
+        
+        Integer assignmentCountBefore = [SELECT COUNT() FROM UserDefinedLabelAssignment WHERE LabelId = :testLabel.Id];
+        System.assertEquals(2, assignmentCountBefore, 'Should have 2 test assignments');
+        
+        Test.startTest();
+        
+        // Delete the label
+        LabelAssignmentController.deleteLabel(testLabel.Id);
+        
+        Test.stopTest();
+        
+        // Verify the label was deleted
+        List<UserDefinedLabel> remainingLabels = [SELECT Id FROM UserDefinedLabel WHERE Id = :testLabel.Id];
+        System.assertEquals(0, remainingLabels.size(), 'The label should be deleted');
+        
+        // Verify assignments were deleted
+        Integer assignmentCountAfter = [SELECT COUNT() FROM UserDefinedLabelAssignment WHERE LabelId = :testLabel.Id];
+        System.assertEquals(0, assignmentCountAfter, 'All assignments should be deleted');
+    }
+    
+    /**
+     * @description Test deleteLabel method with empty label ID
+     */
+    @isTest
+    static void testDeleteLabelWithEmptyId() {
+        Test.startTest();
+        
+        try {
+            LabelAssignmentController.deleteLabel('');
+            System.assert(false, 'Should have thrown an exception');
+        } catch (AuraHandledException e) {
+            System.assert(e.getMessage().contains('Label ID cannot be blank'), 
+                         'Exception message should indicate blank label ID');
+        }
+        
+        Test.stopTest();
+    }
+    
+    /**
+     * @description Test deleteLabel method with invalid label ID
+     */
+    @isTest
+    static void testDeleteLabelWithInvalidId() {
+        Test.startTest();
+        
+        try {
+            LabelAssignmentController.deleteLabel('INVALID_ID');
+            System.assert(false, 'Should have thrown an exception');
+        } catch (AuraHandledException e) {
+            System.assert(e.getMessage().contains('Error deleting label'), 
+                         'Exception message should indicate error deleting label');
+        }
+        
+        Test.stopTest();
+    }
 }

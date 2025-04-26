@@ -143,4 +143,109 @@ public with sharing class LabelAssignmentController {
             throw new AuraHandledException('Error deleting assignment: ' + e.getMessage());
         }
     }
+    
+    /**
+     * @description Delete multiple UserDefinedLabelAssignment records
+     * @param assignmentIds List of UserDefinedLabelAssignment Ids to delete
+     * @return void
+     */
+    @AuraEnabled
+    public static void deleteMultipleAssignments(List<String> assignmentIds) {
+        try {
+            if (assignmentIds == null || assignmentIds.isEmpty()) {
+                throw new AuraHandledException('No assignment IDs provided for deletion');
+            }
+            
+            // Query the assignments to ensure they exist and are accessible
+            List<UserDefinedLabelAssignment> assignments = [
+                SELECT Id, LabelId 
+                FROM UserDefinedLabelAssignment 
+                WHERE Id IN :assignmentIds
+            ];
+            
+            if (assignments.isEmpty()) {
+                throw new AuraHandledException('No assignments found with the provided IDs');
+            }
+            
+            // Get all label IDs from the assignments
+            Set<Id> labelIds = new Set<Id>();
+            for (UserDefinedLabelAssignment assignment : assignments) {
+                labelIds.add(assignment.LabelId);
+            }
+            
+            // Get the labels to verify ownership
+            Map<Id, UserDefinedLabel> labelsMap = new Map<Id, UserDefinedLabel>([
+                SELECT Id, OwnerId 
+                FROM UserDefinedLabel 
+                WHERE Id IN :labelIds
+            ]);
+            
+            // Verify each assignment belongs to a label owned by the current user
+            List<UserDefinedLabelAssignment> assignmentsToDelete = new List<UserDefinedLabelAssignment>();
+            for (UserDefinedLabelAssignment assignment : assignments) {
+                UserDefinedLabel label = labelsMap.get(assignment.LabelId);
+                if (label != null && label.OwnerId == UserInfo.getUserId()) {
+                    assignmentsToDelete.add(assignment);
+                }
+            }
+            
+            if (assignmentsToDelete.isEmpty()) {
+                throw new AuraHandledException('You do not have permission to delete any of the selected assignments');
+            }
+            
+            // Delete the assignments
+            delete assignmentsToDelete;
+            
+        } catch (Exception e) {
+            throw new AuraHandledException('Error deleting assignments: ' + e.getMessage());
+        }
+    }
+    
+    /**
+     * @description Delete a UserDefinedLabel and all its assignments
+     * @param labelId The Id of the UserDefinedLabel to delete
+     * @return void
+     */
+    @AuraEnabled
+    public static void deleteLabel(String labelId) {
+        try {
+            if (String.isBlank(labelId)) {
+                throw new AuraHandledException('Label ID cannot be blank');
+            }
+            
+            // Query the label to ensure it exists and is accessible
+            List<UserDefinedLabel> labels = [
+                SELECT Id, OwnerId, Name
+                FROM UserDefinedLabel 
+                WHERE Id = :labelId
+                LIMIT 1
+            ];
+            
+            if (labels.isEmpty()) {
+                throw new AuraHandledException('Label not found with ID: ' + labelId);
+            }
+            
+            // Verify the current user is the owner of the label
+            if (labels[0].OwnerId != UserInfo.getUserId()) {
+                throw new AuraHandledException('You do not have permission to delete this label');
+            }
+            
+            // Delete related assignments first (optional, as this will be handled by cascade delete)
+            List<UserDefinedLabelAssignment> assignments = [
+                SELECT Id 
+                FROM UserDefinedLabelAssignment 
+                WHERE LabelId = :labelId
+            ];
+            
+            if (!assignments.isEmpty()) {
+                delete assignments;
+            }
+            
+            // Then delete the label
+            delete labels[0];
+            
+        } catch (Exception e) {
+            throw new AuraHandledException('Error deleting label: ' + e.getMessage());
+        }
+    }
 }

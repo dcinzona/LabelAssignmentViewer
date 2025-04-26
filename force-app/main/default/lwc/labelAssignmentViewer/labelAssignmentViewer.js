@@ -5,6 +5,8 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getUserDefinedLabels from '@salesforce/apex/LabelAssignmentController.getUserDefinedLabels';
 import getLabelAssignments from '@salesforce/apex/LabelAssignmentController.getLabelAssignments';
 import deleteAssignment from '@salesforce/apex/LabelAssignmentController.deleteAssignment';
+import deleteMultipleAssignments from '@salesforce/apex/LabelAssignmentController.deleteMultipleAssignments';
+import deleteLabel from '@salesforce/apex/LabelAssignmentController.deleteLabel';
 
 export default class LabelAssignmentViewer extends NavigationMixin(LightningElement) {
     @track labelOptions = [];
@@ -19,6 +21,10 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     @track lastRefreshed = new Date();
     @track sortBy;
     @track sortDirection = 'asc';
+    @track selectedRows = [];
+    @track isDeleteModalOpen = false;
+    @track isDeleteLabelModalOpen = false;
+    @track selectedLabelName = '';
     
     // Maximum number of records to show without pagination
     maxRecords = 100;
@@ -419,6 +425,144 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
             return `1-${this.maxRecords} of ${this.filteredAssignments.length}`;
         }
         return null;
+    }
+    
+    // Computed property to get the currently selected label name
+    get currentLabelName() {
+        if (!this.selectedLabelId || this.labelOptions.length === 0) {
+            return '';
+        }
+        
+        const selectedOption = this.labelOptions.find(option => option.value === this.selectedLabelId);
+        return selectedOption ? selectedOption.label : '';
+    }
+    
+    // Computed property to determine if bulk actions should be enabled
+    get hasSelectedRows() {
+        return this.selectedRows && this.selectedRows.length > 0;
+    }
+    
+    // Handler for row selection change
+    handleRowSelection(event) {
+        this.selectedRows = event.detail.selectedRows;
+    }
+    
+    // Show confirmation dialog for deleting multiple assignments
+    handleDeleteSelected() {
+        if (!this.hasSelectedRows) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Warning',
+                    message: 'Please select at least one assignment to delete',
+                    variant: 'warning'
+                })
+            );
+            return;
+        }
+        
+        this.isDeleteModalOpen = true;
+    }
+    
+    // Delete multiple assignments
+    deleteSelectedAssignments() {
+        if (!this.hasSelectedRows) {
+            return;
+        }
+        
+        this.isLoading = true;
+        this.isDeleteModalOpen = false;
+        
+        const assignmentIds = this.selectedRows.map(row => row.Id);
+        
+        deleteMultipleAssignments({ assignmentIds: assignmentIds })
+            .then(result => {
+                // Show success toast
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: `${assignmentIds.length} assignment(s) were deleted`,
+                        variant: 'success'
+                    })
+                );
+                
+                // Reset selected rows and refresh data
+                this.selectedRows = [];
+                return this.refreshData();
+            })
+            .catch(error => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error deleting assignments',
+                        message: this.reduceErrors(error),
+                        variant: 'error'
+                    })
+                );
+                this.isLoading = false;
+            });
+    }
+    
+    // Cancel delete multiple assignments
+    cancelDeleteSelected() {
+        this.isDeleteModalOpen = false;
+    }
+    
+    // Show confirmation dialog for deleting label
+    handleDeleteLabel() {
+        if (!this.selectedLabelId) {
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Warning',
+                    message: 'Please select a label to delete',
+                    variant: 'warning'
+                })
+            );
+            return;
+        }
+        
+        this.selectedLabelName = this.currentLabelName;
+        this.isDeleteLabelModalOpen = true;
+    }
+    
+    // Delete the current label and all its assignments
+    deleteLabelAndAssignments() {
+        if (!this.selectedLabelId) {
+            return;
+        }
+        
+        this.isLoading = true;
+        this.isDeleteLabelModalOpen = false;
+        
+        deleteLabel({ labelId: this.selectedLabelId })
+            .then(() => {
+                // Show success toast
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Success',
+                        message: `Label "${this.selectedLabelName}" was deleted with all its assignments`,
+                        variant: 'success'
+                    })
+                );
+                
+                // Reset selected label and refresh data
+                this.selectedLabelId = null;
+                this.selectedRows = [];
+                return refreshApex(this.labelsWireResult);
+            })
+            .catch(error => {
+                this.dispatchEvent(
+                    new ShowToastEvent({
+                        title: 'Error deleting label',
+                        message: this.reduceErrors(error),
+                        variant: 'error'
+                    })
+                );
+                this.isLoading = false;
+            });
+    }
+    
+    // Cancel delete label
+    cancelDeleteLabel() {
+        this.isDeleteLabelModalOpen = false;
     }
 
     // Method to refresh the component data
