@@ -294,7 +294,7 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
         const cloneData = [...this.assignments];
         
         cloneData.sort((a, b) => {
-            return this.sortBy(a, b, fieldName, direction);
+            return this.compareValues(a, b, fieldName, direction);
         });
         
         this.assignments = cloneData;
@@ -302,7 +302,7 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     }
     
     // Helper comparison function for sorting
-    sortBy(a, b, field, sortDirection) {
+    compareValues(a, b, field, sortDirection) {
         const valueA = a[field] ? a[field].toString().toLowerCase() : '';
         const valueB = b[field] ? b[field].toString().toLowerCase() : '';
         
