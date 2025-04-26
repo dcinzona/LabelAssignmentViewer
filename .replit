@@ -1,0 +1,34 @@
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Salesforce SFDX Server"
+
+[[workflows.workflow]]
+name = "Salesforce SFDX Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install -g sfdx-cli && echo \"Starting Salesforce visualization server...\" && cd force-app && python -m http.server 5000"
+waitForPort = 5000
+
+[deployment]
+run = ["sh", "-c", "npm install -g sfdx-cli && echo \"Starting Salesforce visualization server...\" && cd force-app && python -m http.server 5000"]

@@ -1,0 +1,93 @@
+<template>
+    <!-- Main container with list view styling -->
+    <div class="slds-card">
+        <!-- Header section -->
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:label" alternative-text="Label Assignments" size="medium"></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span class="slds-page-header__title slds-truncate" title="Label Assignments">Label Assignments</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter section with combobox -->
+        <div class="slds-card__body slds-card__body_inner">
+            <div class="slds-grid slds-gutters slds-m-bottom_medium">
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-combobox
+                        name="userDefinedLabel"
+                        label="Select User Defined Label"
+                        value={selectedLabelId}
+                        placeholder="Choose a label"
+                        options={labelOptions}
+                        onchange={handleLabelChange}
+                        disabled={isLoading}
+                        class="slds-m-bottom_small">
+                    </lightning-combobox>
+                </div>
+            </div>
+
+            <!-- Loading spinner -->
+            <template if:true={isLoading}>
+                <div class="slds-is-relative slds-p-around_medium">
+                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Error message -->
+            <template if:true={error}>
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                    <span class="slds-assistive-text">Error</span>
+                    <h2>
+                        <lightning-icon icon-name="utility:error" alternative-text="Error" size="small" class="slds-m-right_x-small"></lightning-icon>
+                        {error}
+                    </h2>
+                </div>
+            </template>
+
+            <!-- Empty state message when no label is selected -->
+            <template if:true={showEmptySelectionState}>
+                <div class="slds-illustration slds-illustration_small slds-p-around_medium">
+                    <div class="slds-text-longform">
+                        <h3 class="slds-text-heading_medium">Select a label to view assignments</h3>
+                        <p class="slds-text-body_regular">Choose a User Defined Label from the dropdown above to view its assignments.</p>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Empty state message when no assignments found -->
+            <template if:true={showNoAssignmentsState}>
+                <div class="slds-illustration slds-illustration_small slds-p-around_medium">
+                    <div class="slds-text-longform">
+                        <h3 class="slds-text-heading_medium">No assignments found</h3>
+                        <p class="slds-text-body_regular">There are no assignments for the selected label.</p>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Data table for assignments -->
+            <template if:true={showDataTable}>
+                <lightning-datatable
+                    key-field="id"
+                    data={assignments}
+                    columns={columns}
+                    hide-checkbox-column
+                    resize-column-disabled>
+                </lightning-datatable>
+            </template>
+        </div>
+    </div>
+</template>
