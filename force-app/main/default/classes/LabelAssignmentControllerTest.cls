@@ -23,21 +23,23 @@ private class LabelAssignmentControllerTest {
             Origin = 'Web'
         );
         insert testCase;
+
+        // Create test Account
+        Account testAccount = new Account(
+            Name = 'Test Account'
+        );
+        insert testAccount;
         
         // Create UserDefinedLabelAssignment for Case
         UserDefinedLabelAssignment caseAssignment = new UserDefinedLabelAssignment(
             LabelId = testLabel.Id,
-            ItemId = testCase.Id,
-            EntityType = 'Case',
-            SubjectOrName = 'Original Subject'  // This will be overridden in the controller
+            ItemId = testCase.Id
         );
         
         // Create UserDefinedLabelAssignment for non-Case record
         UserDefinedLabelAssignment regularAssignment = new UserDefinedLabelAssignment(
             LabelId = testLabel.Id,
-            ItemId = '001000000000001',  // Dummy Account ID (001 prefix)
-            EntityType = 'Account',
-            SubjectOrName = 'Test Account'
+            ItemId = testAccount.Id
         );
         
         insert new List<UserDefinedLabelAssignment>{caseAssignment, regularAssignment};
@@ -153,7 +155,7 @@ private class LabelAssignmentControllerTest {
         UserDefinedLabel testLabel = [SELECT Id FROM UserDefinedLabel WHERE Name = 'Test Label' LIMIT 1];
         UserDefinedLabelAssignment testAssignment = [
             SELECT Id FROM UserDefinedLabelAssignment 
-            WHERE LabelId = :testLabel.Id AND EntityType = 'Account' 
+            WHERE LabelId = :testLabel.Id
             LIMIT 1
         ];
         
