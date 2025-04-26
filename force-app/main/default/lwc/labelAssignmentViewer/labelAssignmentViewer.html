@@ -144,7 +144,7 @@
             <template if:true={showDataTable}>
                 <!-- Count indicator -->
                 <div class="slds-p-horizontal_x-small">
-                    <div class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small slds-border_bottom">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small">
                         <div class="slds-col">
                             <div class="slds-text-color_weak slds-text-body_small">
                                 <template if:true={isSearching}>
@@ -160,7 +160,7 @@
                 </div>
                 
                 <!-- Data table with related list styling -->
-                <div class="slds-table_header-fixed_container">
+                <div class="slds-border_top">
                     <lightning-datatable
                         key-field="Id"
                         data={filteredAssignments}
@@ -170,9 +170,7 @@
                         onsort={handleSort}
                         sorted-by={sortBy}
                         sorted-direction={sortDirection}
-                        onrowselection={handleRowSelection}
-                        selected-rows={selectedRows}
-                        class="slds-table_bordered slds-table_fixed-layout slds-table_header-fixed">
+                        class="">
                     </lightning-datatable>
                 </div>
                 

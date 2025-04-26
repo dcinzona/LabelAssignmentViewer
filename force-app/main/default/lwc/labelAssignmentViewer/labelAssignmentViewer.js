@@ -32,7 +32,7 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     // Row actions
     rowActions = [
         { label: 'View Record', name: 'view_record' },
-        { label: 'Delete', name: 'delete' }
+        { label: 'Remove Label', name: 'delete' }
     ];
     
     // Object icon mapping
@@ -166,15 +166,7 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
             enhancedRecord.iconName = iconName;
             
             // Set recordUrl for navigation
-            enhancedRecord.recordUrl = `/${record.ItemId}`;
-            
-            // Add styling classes based on record type
-            if (record.ItemId && record.ItemId.startsWith('500')) {
-                // This is a Case record
-                enhancedRecord.itemIdClass = 'slds-text-color_success';
-                enhancedRecord.subjectClass = 'slds-text-color_success';
-                enhancedRecord.iconName = 'standard:case';
-            }
+            enhancedRecord.recordUrl = `/lightning/r/${record.ItemId}/view`;
             
             return enhancedRecord;
         });
