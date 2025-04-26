@@ -51,6 +51,9 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
         // Initialize filtered assignments
         this.filteredAssignments = this.assignments;
         this.lastRefreshed = new Date();
+        
+        // Ensure selectedRows is properly initialized as an empty array
+        this.selectedRows = [];
     }
 
     // DataTable columns configuration with related list styling
@@ -444,7 +447,8 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     
     // Computed property to determine if bulk actions should be enabled
     get hasSelectedRows() {
-        return this.selectedRows && this.selectedRows.length > 0;
+        // Ensure we have a valid array and it has elements
+        return Array.isArray(this.selectedRows) && this.selectedRows.length > 0;
     }
     
     // Computed property for disabled state of Delete Selected button
@@ -454,7 +458,16 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     
     // Handler for row selection change
     handleRowSelection(event) {
-        this.selectedRows = event.detail.selectedRows;
+        // Store the selected rows
+        this.selectedRows = event.detail.selectedRows || [];
+        
+        // For debugging - log the number of selected rows
+        console.log(`Selected rows changed: ${this.selectedRows.length} rows selected`);
+        
+        // Force component to re-evaluate the hasSelectedRows getter
+        this.dispatchEvent(new CustomEvent('selectionchange', {
+            detail: { selectedCount: this.selectedRows.length }
+        }));
     }
     
     // Show confirmation dialog for deleting multiple assignments
