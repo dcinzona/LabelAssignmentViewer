@@ -22,9 +22,23 @@ export default class LabelAssignmentViewer extends LightningElement {
     // DataTable columns configuration
     columns = [
         { label: 'Assignment ID', fieldName: 'Id', type: 'text' },
-        { label: 'Item ID', fieldName: 'ItemId', type: 'text' },
+        { 
+            label: 'Item ID', 
+            fieldName: 'ItemId', 
+            type: 'text',
+            cellAttributes: { 
+                class: { fieldName: 'itemIdClass' } 
+            }
+        },
         { label: 'Entity Type', fieldName: 'EntityType', type: 'text' },
-        { label: 'Subject/Name', fieldName: 'SubjectOrName', type: 'text' }
+        { 
+            label: 'Subject/Name', 
+            fieldName: 'SubjectOrName', 
+            type: 'text',
+            cellAttributes: { 
+                class: { fieldName: 'subjectClass' } 
+            }
+        }
     ];
 
     // Wire service to get UserDefinedLabel records for the combobox
@@ -55,7 +69,8 @@ export default class LabelAssignmentViewer extends LightningElement {
         const { data, error } = result;
         
         if (data) {
-            this.assignments = data;
+            // Process and enhance records before assigning
+            this.assignments = this.processAssignments(data);
             this.filterAssignments();
             this.error = undefined;
         } else if (error) {
@@ -64,6 +79,23 @@ export default class LabelAssignmentViewer extends LightningElement {
             this.filteredAssignments = [];
         }
         this.isLoading = false;
+    }
+    
+    // Process assignment records to enhance data and add styling
+    processAssignments(records) {
+        return records.map(record => {
+            // Create a shallow clone of the record
+            const enhancedRecord = { ...record };
+            
+            // Add styling classes based on record type
+            if (record.ItemId && record.ItemId.startsWith('500')) {
+                // This is a Case record
+                enhancedRecord.itemIdClass = 'slds-text-color_success';
+                enhancedRecord.subjectClass = 'slds-text-color_success slds-text-title_bold';
+            }
+            
+            return enhancedRecord;
+        });
     }
 
     // Handle label selection change
@@ -98,8 +130,13 @@ export default class LabelAssignmentViewer extends LightningElement {
     
     // Helper method to search within a record
     searchInRecord(record, searchTerm) {
-        // Fields to search in
+        // Standard fields to search in
         const searchableFields = ['Id', 'ItemId', 'EntityType', 'SubjectOrName'];
+        
+        // Additional Case-specific fields to search if available
+        if (record.IsCaseRecord) {
+            searchableFields.push('CaseNumber', 'CaseSubject');
+        }
         
         // Check if any field contains the search term
         return searchableFields.some(field => {
