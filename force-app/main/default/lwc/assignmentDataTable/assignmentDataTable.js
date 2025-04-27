@@ -504,6 +504,11 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         return this.selectedRows ? this.selectedRows.length : 0;
     }
     
+    // Check if only a single record is selected
+    get isSingleSelection() {
+        return this.selectedRowCount === 1;
+    }
+    
     // Generate a dynamic label for the delete button based on selection count
     get deleteButtonLabel() {
         const count = this.selectedRowCount;

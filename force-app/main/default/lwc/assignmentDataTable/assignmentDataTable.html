@@ -384,7 +384,8 @@
                     <template if:false={deletingAssignment}>
                         <p>
                             Are you sure you want to delete {selectedRowCount} selected 
-                            {selectedRowCount === 1 ? 'assignment' : 'assignments'}? 
+                            <template if:true={isSingleSelection}>assignment</template>
+                            <template if:false={isSingleSelection}>assignments</template>? 
                             This action cannot be undone.
                         </p>
                     </template>
