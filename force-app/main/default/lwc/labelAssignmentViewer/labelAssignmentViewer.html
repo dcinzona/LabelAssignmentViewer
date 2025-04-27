@@ -24,7 +24,7 @@
                         icon-name="utility:refresh" 
                         alternative-text="Refresh" 
                         title="Refresh" 
-                        onclick={refreshData}
+                        onclick={handleRefresh}
                         class="slds-m-left_xx-small"
                         disabled={isLoading}>
                     </lightning-button-icon>
@@ -34,65 +34,15 @@
 
         <!-- Card body -->
         <div class="slds-card__body">
-            <!-- Filter section with combobox and search field -->
+            <!-- Filter section with combobox -->
             <div class="slds-p-horizontal_medium slds-p-top_small">
                 <div class="slds-grid slds-gutters slds-wrap">
                     <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3">
-                        <div class="slds-grid slds-gutters">
-                            <div class="slds-col slds-size_3-of-4">
-                                <lightning-combobox
-                                    name="userDefinedLabel"
-                                    label="Select User Defined Label"
-                                    value={selectedLabelId}
-                                    placeholder="Choose a label"
-                                    options={labelOptions}
-                                    onchange={handleLabelChange}
-                                    disabled={isLoading}
-                                    variant="label-hidden"
-                                    class="slds-m-bottom_x-small">
-                                </lightning-combobox>
-                            </div>
-                            <div class="slds-col slds-size_1-of-4 slds-align-middle">
-                                <lightning-button 
-                                    variant="destructive" 
-                                    label="Delete Label" 
-                                    title="Delete Label"
-                                    onclick={handleDeleteLabel} 
-                                    disabled={noLabelSelected}
-                                    class="slds-m-bottom_x-small slds-m-left_x-small">
-                                </lightning-button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_2-of-3">
-                        <div class="slds-grid slds-gutters">
-                            <div class="slds-col slds-size_3-of-4">
-                                <template if:false={dontShowDataTable}>
-                                    <lightning-input
-                                        type="search"
-                                        label="Search"
-                                        placeholder="Search in assignments..."
-                                        value={searchTerm}
-                                        onchange={handleSearchChange}
-                                        disabled={dontShowDataTable}
-                                        variant="label-hidden"
-                                        class="slds-m-bottom_x-small">
-                                    </lightning-input>
-                                </template>
-                            </div>
-                            <div class="slds-col slds-size_1-of-4 slds-align-middle">
-                                <template if:false={dontShowDataTable}>
-                                    <lightning-button 
-                                        variant="brand-outline" 
-                                        label="Delete Selected" 
-                                        title="Delete Selected"
-                                        onclick={handleDeleteSelected} 
-                                        disabled={hasNoSelectedRows}
-                                        class="slds-m-bottom_x-small slds-m-left_x-small">
-                                    </lightning-button>
-                                </template>
-                            </div>
-                        </div>
+                        <!-- Label Selector Component -->
+                        <c-label-selector
+                            onlabelselect={handleLabelSelect}
+                            onlabeldelete={handleLabelDelete}>
+                        </c-label-selector>
                     </div>
                 </div>
             </div>
@@ -115,176 +65,11 @@
                 </div>
             </template>
 
-            <!-- Empty state message when no label is selected -->
-            <template if:true={showEmptySelectionState}>
-                <div class="slds-illustration slds-illustration_small slds-p-around_small slds-m-horizontal_x-small slds-box slds-theme_shade">
-                    <div class="slds-text-longform">
-                        <h3 class="slds-text-heading_small">Select a label to view assignments</h3>
-                        <p class="slds-text-body_small">Choose a User Defined Label from the dropdown above.</p>
-                    </div>
-                </div>
-            </template>
-
-            <!-- Empty state message when no assignments found -->
-            <template if:true={showNoAssignmentsState}>
-                <div class="slds-illustration slds-illustration_small slds-p-around_small slds-m-horizontal_x-small slds-box slds-theme_shade">
-                    <div class="slds-text-longform">
-                        <h3 class="slds-text-heading_small">No assignments found</h3>
-                        <template if:true={isSearching}>
-                            <p class="slds-text-body_small">No assignments match your search criteria. Try a different search term.</p>
-                        </template>
-                        <template if:false={isSearching}>
-                            <p class="slds-text-body_small">There are no assignments for the selected label.</p>
-                        </template>
-                    </div>
-                </div>
-            </template>
-
-            <!-- Data table for assignments -->
-            <template if:true={showDataTable}>
-                <!-- Count indicator -->
-                <div class="slds-p-horizontal_x-small">
-                    <div class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small slds-border_bottom">
-                        <div class="slds-col">
-                            <div class="slds-text-color_weak slds-text-body_small">
-                                <template if:true={isSearching}>
-                                    Showing {filteredAssignments.length} of {assignments.length} items
-                                </template>
-                                <template if:false={isSearching}>
-                                    {assignments.length} item<template if:true={showPlural}>s</template>
-                                </template>
-                                • Updated {formattedDateTime}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Data table with related list styling -->
-                <div class="slds-table_header-fixed_container">
-                    <lightning-datatable
-                        key-field="Id"
-                        data={filteredAssignments}
-                        columns={columns}
-                        resize-column-disabled
-                        onrowaction={handleRowAction}
-                        onsort={handleSort}
-                        sorted-by={sortBy}
-                        sorted-direction={sortDirection}
-                        onrowselection={handleRowSelection}
-                        selected-rows={selectedRows}
-                        class="slds-table_bordered slds-table_fixed-layout slds-table_header-fixed">
-                    </lightning-datatable>
-                </div>
-                
-                <!-- Footer with pagination -->
-                <div class="slds-p-horizontal_x-small">
-                    <div class="slds-grid slds-grid_vertical-align-center slds-p-vertical_xx-small slds-border_top">
-                        <div class="slds-col">
-                            <div class="slds-text-color_weak slds-text-body_small">
-                                <template if:true={hasMoreRecords}>
-                                    Showing {paginationInfo}
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </template>
+            <!-- Assignment DataTable Component -->
+            <c-assignment-data-table
+                label-id={selectedLabelId}
+                label-name={selectedLabelName}>
+            </c-assignment-data-table>
         </div>
     </article>
-    
-    <!-- Delete Selected Assignments Modal -->
-    <template if:true={isDeleteModalOpen}>
-        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
-                <header class="slds-modal__header">
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={cancelDeleteSelected}>
-                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
-                        <span class="slds-assistive-text">Close</span>
-                    </button>
-                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Delete Selected Assignments</h2>
-                </header>
-                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-                    <p>Are you sure you want to delete {selectedRows.length} selected assignment(s)? This action cannot be undone.</p>
-                </div>
-                <footer class="slds-modal__footer">
-                    <button class="slds-button slds-button_neutral" onclick={cancelDeleteSelected}>Cancel</button>
-                    <button class="slds-button slds-button_destructive" onclick={deleteSelectedAssignments}>Delete</button>
-                </footer>
-            </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
-    
-    <!-- Delete Label Modal -->
-    <template if:true={isDeleteLabelModalOpen}>
-        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
-            <div class="slds-modal__container">
-                <header class="slds-modal__header">
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={cancelDeleteLabel}>
-                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
-                        <span class="slds-assistive-text">Close</span>
-                    </button>
-                    <h2 id="modal-heading-02" class="slds-modal__title slds-hyphenate">Delete Label</h2>
-                </header>
-                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
-                    <p>Are you sure you want to delete the label "{selectedLabelName}" and all its assignments? This action cannot be undone.</p>
-                </div>
-                <footer class="slds-modal__footer">
-                    <button class="slds-button slds-button_neutral" onclick={cancelDeleteLabel}>Cancel</button>
-                    <button class="slds-button slds-button_destructive" onclick={deleteLabelAndAssignments}>Delete</button>
-                </footer>
-            </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
-    
-    <!-- Record Details Modal/Popover -->
-    <template if:true={isRecordDetailsModalOpen}>
-        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-03" aria-modal="true" aria-describedby="modal-content-id-3" class="slds-modal slds-fade-in-open slds-modal_medium">
-            <div class="slds-modal__container">
-                <header class="slds-modal__header">
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeRecordDetails}>
-                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
-                        <span class="slds-assistive-text">Close</span>
-                    </button>
-                    <lightning-icon icon-name={selectedRecordDetails.Icon} alternative-text="Record Icon" size="medium" class="slds-m-right_small"></lightning-icon>
-                    <h2 id="modal-heading-03" class="slds-modal__title slds-hyphenate">
-                        {selectedRecordDetails.Type}: {selectedRecordDetails.Name}
-                    </h2>
-                </header>
-                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
-                    <div class="slds-grid slds-wrap">
-                        <template for:each={selectedRecordDetails.Fields} for:item="field">
-                            <div key={field.label} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-p-horizontal_small slds-p-vertical_x-small">
-                                <div class="slds-form-element">
-                                    <span class="slds-form-element__label">{field.label}</span>
-                                    <div class="slds-form-element__control">
-                                        <div class="slds-form-element__static">{field.value}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-                <footer class="slds-modal__footer">
-                    <lightning-button 
-                        variant="brand" 
-                        label="View Full Record" 
-                        title="View Full Record"
-                        onclick={navigateToRecord} 
-                        data-id={selectedRecordDetails.Id}
-                        class="slds-m-left_x-small">
-                    </lightning-button>
-                    <lightning-button 
-                        variant="neutral" 
-                        label="Close" 
-                        title="Close"
-                        onclick={closeRecordDetails} 
-                        class="slds-m-left_x-small">
-                    </lightning-button>
-                </footer>
-            </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
 </template>

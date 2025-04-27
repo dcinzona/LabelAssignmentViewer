@@ -1,37 +1,36 @@
-import { LightningElement, api, wire, track } from 'lwc';
+import { LightningElement, wire, track, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { refreshApex } from '@salesforce/apex';
-import getUserDefinedLabels from '@salesforce/apex/LabelAssignmentController.getUserDefinedLabels';
+import getLabels from '@salesforce/apex/LabelAssignmentController.getLabels';
 import deleteLabel from '@salesforce/apex/LabelAssignmentController.deleteLabel';
 
 export default class LabelSelector extends LightningElement {
-    @api title = 'Label Selector';
-    @track labelOptions = [];
+    @track labels = [];
     @track selectedLabelId;
-    @track isDeleteLabelModalOpen = false;
-    @track selectedLabelName = '';
+    @track isLoading = false;
     @track error;
-    @track isLoading = true;
-    @track labelsWireResult;
+    @track isDeleteModalOpen = false;
     
-    // Wire service to get UserDefinedLabel records for the combobox
-    @wire(getUserDefinedLabels)
+    @wire(getLabels)
     wiredLabels(result) {
-        this.labelsWireResult = result;
-        const { data, error } = result;
+        this.isLoading = true;
+        this.labels = [{ label: 'Select a label...', value: '' }]; // Default option
         
-        if (data) {
-            this.labelOptions = data.map(label => {
+        if (result.data) {
+            // Process labels for combobox
+            const labelOptions = result.data.map(label => {
                 return {
-                    label: `${label.Name} (${label.TotalAssignments || 0})`,
+                    label: label.Name,
                     value: label.Id
                 };
             });
+            
+            // Add labels to options array
+            this.labels = [{ label: 'Select a label...', value: '' }, ...labelOptions];
             this.error = undefined;
-        } else if (error) {
-            this.error = 'Error loading labels: ' + this.reduceErrors(error);
-            this.labelOptions = [];
+        } else if (result.error) {
+            this.error = this.reduceErrors(result.error);
         }
+        
         this.isLoading = false;
     }
     
@@ -39,127 +38,190 @@ export default class LabelSelector extends LightningElement {
     handleLabelChange(event) {
         this.selectedLabelId = event.detail.value;
         
-        // Notify parent component about the selection change
-        this.dispatchEvent(new CustomEvent('labelselect', {
-            detail: { 
-                labelId: this.selectedLabelId,
-                labelName: this.currentLabelName 
-            }
-        }));
-    }
-    
-    // Computed property to get the currently selected label name
-    get currentLabelName() {
-        if (!this.selectedLabelId || this.labelOptions.length === 0) {
-            return '';
+        // If a label is selected, dispatch event to parent
+        if (this.selectedLabelId) {
+            const selectedLabel = this.labels.find(option => option.value === this.selectedLabelId);
+            const labelName = selectedLabel ? selectedLabel.label : '';
+            
+            // Create custom event with label info
+            const selectEvent = new CustomEvent('labelselect', {
+                detail: {
+                    labelId: this.selectedLabelId,
+                    labelName: labelName
+                }
+            });
+            
+            // Dispatch the event to the parent component
+            this.dispatchEvent(selectEvent);
+        } else {
+            // If no label is selected (back to default option)
+            const selectEvent = new CustomEvent('labelselect', {
+                detail: {
+                    labelId: '',
+                    labelName: ''
+                }
+            });
+            
+            // Dispatch the event to the parent component
+            this.dispatchEvent(selectEvent);
         }
-        
-        const selectedOption = this.labelOptions.find(option => option.value === this.selectedLabelId);
-        return selectedOption ? selectedOption.label : '';
     }
     
-    // Computed property for disabled state of Delete Label button
+    // Get the current selected label name
+    get currentLabelName() {
+        if (this.selectedLabelId) {
+            const selectedLabel = this.labels.find(option => option.value === this.selectedLabelId);
+            return selectedLabel ? selectedLabel.label : '';
+        }
+        return '';
+    }
+    
+    // Check if no label is selected
     get noLabelSelected() {
         return !this.selectedLabelId;
     }
     
-    // Show confirmation dialog for deleting label
+    // Handle delete label button click
     handleDeleteLabel() {
-        if (!this.selectedLabelId) {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Warning',
-                    message: 'Please select a label to delete',
-                    variant: 'warning'
-                })
-            );
-            return;
+        if (this.selectedLabelId) {
+            // Open confirmation modal
+            this.isDeleteModalOpen = true;
         }
-        
-        this.selectedLabelName = this.currentLabelName;
-        this.isDeleteLabelModalOpen = true;
     }
     
-    // Delete the current label and all its assignments
+    // Delete label and all assignments
     deleteLabelAndAssignments() {
-        if (!this.selectedLabelId) {
-            return;
-        }
-        
         this.isLoading = true;
-        this.isDeleteLabelModalOpen = false;
         
+        // Call Apex method to delete label and assignments
         deleteLabel({ labelId: this.selectedLabelId })
             .then(() => {
-                // Show success toast
+                // Show success message
                 this.dispatchEvent(
                     new ShowToastEvent({
                         title: 'Success',
-                        message: `Label "${this.selectedLabelName}" was deleted with all its assignments`,
+                        message: `Label "${this.currentLabelName}" was deleted successfully.`,
                         variant: 'success'
                     })
                 );
                 
-                // Reset selected label and refresh data
-                this.selectedLabelId = null;
+                // Reset selected label
+                this.selectedLabelId = '';
                 
-                // Notify parent about the deletion
-                this.dispatchEvent(new CustomEvent('labeldelete', {
-                    detail: { 
+                // Close modal
+                this.isDeleteModalOpen = false;
+                
+                // Refresh data
+                this.refreshData();
+                
+                // Dispatch event to parent component
+                const deleteEvent = new CustomEvent('labeldelete', {
+                    detail: {
                         labelId: this.selectedLabelId
                     }
-                }));
+                });
                 
-                return refreshApex(this.labelsWireResult);
+                // Dispatch the event to the parent component
+                this.dispatchEvent(deleteEvent);
             })
             .catch(error => {
+                // Show error message
+                this.error = this.reduceErrors(error);
+                
                 this.dispatchEvent(
                     new ShowToastEvent({
-                        title: 'Error deleting label',
-                        message: this.reduceErrors(error),
+                        title: 'Error',
+                        message: this.error,
                         variant: 'error'
                     })
                 );
+            })
+            .finally(() => {
                 this.isLoading = false;
             });
     }
     
     // Cancel delete label
     cancelDeleteLabel() {
-        this.isDeleteLabelModalOpen = false;
+        this.isDeleteModalOpen = false;
     }
     
-    // Helper method to reduce errors to a string
+    // Helper function to extract error messages
     reduceErrors(errors) {
         if (!Array.isArray(errors)) {
             errors = [errors];
         }
-        
-        return errors.map(error => {
-            // UI API read errors
-            if (Array.isArray(error.body)) {
-                return error.body.map(e => e.message).join(', ');
-            }
-            // UI API DML, Apex and network errors
-            else if (error.body && typeof error.body.message === 'string') {
-                return error.body.message;
-            }
-            // JS errors
-            else if (typeof error.message === 'string') {
-                return error.message;
-            }
-            // Unknown error shape, just stringify
-            return JSON.stringify(error);
-        }).join(', ');
+
+        return errors
+            .filter(error => !!error)
+            .map(error => {
+                // UI API read errors
+                if (Array.isArray(error.body)) {
+                    return error.body.map(e => e.message).join(', ');
+                }
+                // UI API DML, Apex and network errors
+                else if (error.body && typeof error.body.message === 'string') {
+                    return error.body.message;
+                }
+                // JS errors
+                else if (typeof error.message === 'string') {
+                    return error.message;
+                }
+                // Unknown error shape so try HTTP status text
+                return error.statusText || 'Unknown error';
+            })
+            .join(', ');
     }
     
-    // Refresh the data
+    // Public method to refresh data
     @api refreshData() {
-        this.isLoading = true;
-        
-        return refreshApex(this.labelsWireResult)
-            .finally(() => {
-                this.isLoading = false;
-            });
+        return new Promise((resolve, reject) => {
+            // Refresh the wire adapter
+            this.isLoading = true;
+            
+            getLabels()
+                .then(result => {
+                    // Process labels for combobox
+                    const labelOptions = result.map(label => {
+                        return {
+                            label: label.Name,
+                            value: label.Id
+                        };
+                    });
+                    
+                    // Add labels to options array
+                    this.labels = [{ label: 'Select a label...', value: '' }, ...labelOptions];
+                    this.error = undefined;
+                    
+                    // Check if the previously selected label still exists
+                    if (this.selectedLabelId) {
+                        const stillExists = this.labels.some(option => option.value === this.selectedLabelId);
+                        if (!stillExists) {
+                            // If the label no longer exists, reset selection
+                            this.selectedLabelId = '';
+                            
+                            // Dispatch event to parent component
+                            const selectEvent = new CustomEvent('labelselect', {
+                                detail: {
+                                    labelId: '',
+                                    labelName: ''
+                                }
+                            });
+                            
+                            // Dispatch the event to the parent component
+                            this.dispatchEvent(selectEvent);
+                        }
+                    }
+                    
+                    resolve();
+                })
+                .catch(error => {
+                    this.error = this.reduceErrors(error);
+                    reject(error);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        });
     }
 }
