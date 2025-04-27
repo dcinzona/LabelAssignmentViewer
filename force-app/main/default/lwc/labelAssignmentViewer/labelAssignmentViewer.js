@@ -86,4 +86,60 @@ export default class LabelAssignmentViewer extends LightningElement {
             minute: '2-digit'
         }).format(now);
     }
+    
+    // Handle switch to custom table view
+    handleCustomTableView() {
+        this.tableView = 'custom';
+    }
+    
+    // Handle switch to standard table view
+    handleStandardTableView() {
+        this.tableView = 'standard';
+    }
+    
+    // Determine if custom table should be shown
+    get showCustomTable() {
+        return this.tableView === 'custom';
+    }
+    
+    // Determine if standard table should be shown
+    get showStandardTable() {
+        return this.tableView === 'standard';
+    }
+    
+    // Get variant for custom table button
+    get customTableVariant() {
+        return this.tableView === 'custom' ? 'brand' : 'neutral';
+    }
+    
+    // Get variant for standard table button
+    get standardTableVariant() {
+        return this.tableView === 'standard' ? 'brand' : 'neutral';
+    }
+    
+    // Check if user has selected a label
+    get showEmptySelectionState() {
+        return !this.selectedLabelId;
+    }
+    
+    // Updated refresh method to handle both table types
+    refreshAssignmentDataTable() {
+        // Try to refresh the custom table if it's showing
+        if (this.showCustomTable) {
+            const customTable = this.template.querySelector('c-assignment-data-table');
+            if (customTable) {
+                return customTable.refreshData();
+            }
+        }
+        
+        // Try to refresh the standard table if it's showing
+        if (this.showStandardTable) {
+            const standardTable = this.template.querySelector('c-assignment-lightning-table');
+            if (standardTable) {
+                return standardTable.refreshData();
+            }
+        }
+        
+        return Promise.resolve();
+    }
 }
