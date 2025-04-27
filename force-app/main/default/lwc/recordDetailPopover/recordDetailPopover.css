@@ -1,37 +1,54 @@
-.item-id-hover {
-    cursor: default;
+.record-hover-container {
     position: relative;
+    display: inline-block;
 }
 
-.item-id-hover .slds-popover {
-    position: absolute;
-    top: 2rem;
-    left: 0;
-    width: 320px;
-    max-width: 400px;
-    z-index: 9000;
-}
-
-.item-id-hover:hover .slds-hide {
-    display: block !important;
-}
-
-.slds-icon_container {
-    padding: 0.25rem;
-}
-
-a {
+.record-link {
     color: rgb(0, 112, 210);
     text-decoration: none;
     cursor: pointer;
 }
 
-a:hover {
+.record-link:hover {
+    color: rgb(0, 95, 178);
     text-decoration: underline;
+}
+
+.popover-panel {
+    position: absolute;
+    top: 1.75rem;
+    left: -1rem;
+    width: 20rem;
+    z-index: 9000;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+    border: 1px solid rgb(221, 219, 218);
+}
+
+.record-hover-container:hover .slds-hide {
+    display: block !important;
+}
+
+/* Make sure popover is above other elements */
+.record-hover-container:hover {
+    z-index: 9001;
+}
+
+/* Custom styling for the field layout in popover */
+.slds-icon_small {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.slds-popover__header {
+    border-bottom: 1px solid rgb(221, 219, 218);
+    background-color: rgb(243, 242, 242);
 }
 
 .slds-popover__footer {
     border-top: 1px solid rgb(221, 219, 218);
-    text-align: right;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem;
+}
+
+.slds-icon_container {
+    padding: 0.25rem;
 }

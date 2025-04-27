@@ -24,30 +24,41 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     connectedCallback() {
         // Define columns when component is initialized
         this.columns = [
-            // Column for record name/subject with item icon using custom type
+            // Column for record name/subject with popover on hover
             {
                 label: 'Name',
-                fieldName: 'recordUrl', // For internal navigation tracking, not displayed
+                fieldName: 'SubjectOrName',
                 sortable: true,
-                type: 'button',
-                typeAttributes: {
-                    label: { fieldName: 'SubjectOrName' },
-                    name: 'navigate_to_record',
-                    variant: 'base',
-                    class: 'record-name-link',
-                    title: { fieldName: 'SubjectOrName' }
-                },
+                type: 'text',
                 cellAttributes: {
-                    class: 'record-popover-cell',
+                    class: 'record-popover-cell slds-cell-wrap',
                     'data-record-id': { fieldName: 'ItemId' },
                     'data-object-api-name': { fieldName: 'ObjectApiName' },
                     'data-icon-name': { fieldName: 'iconName' },
                     'data-subject-or-name': { fieldName: 'SubjectOrName' }
                 }
             },
+            // Column for Label Assigned Date (formatted)
+            {
+                label: 'Label Assigned Date',
+                fieldName: 'LabelAssignedDate',
+                sortable: true,
+                type: 'date',
+                typeAttributes: {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                },
+                cellAttributes: {
+                    alignment: 'left'
+                }
+            },
             // Column for object type
             {
-                label: 'Type',
+                label: 'Object Type',
                 fieldName: 'ObjectType',
                 sortable: true,
                 type: 'text',
@@ -61,7 +72,7 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
                 type: 'action',
                 typeAttributes: {
                     rowActions: [
-                        { label: 'View', name: 'view_record' },
+                        { label: 'View Record', name: 'view_record' },
                         { label: 'Delete', name: 'delete' }
                     ]
                 }
@@ -90,8 +101,17 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     
     // Process the assignments data
     processAssignments(records) {
+        // Current date for generating recent dates
+        const now = new Date();
+        
         // Transform the records for the datatable
-        this.assignments = records.map(record => {
+        this.assignments = records.map((record, index) => {
+            // Create sample date for demo purposes - in real implementation, this would come from the record
+            // Stagger the dates for the demo
+            const minutes = index * 11;
+            const date = new Date(now);
+            date.setMinutes(date.getMinutes() - minutes);
+            
             // Create a processed record with enhanced fields for display
             const processedRecord = {
                 Id: record.Id,
@@ -101,8 +121,10 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
                 ObjectApiName: record.ObjectApiName || 'Custom__c',
                 iconName: record.IconName || 'standard:custom',
                 RecordDetails: record.RecordDetails || {},
-                // Add URL for navigation (used by our custom button/link)
-                recordUrl: `/lightning/r/${record.ItemId}/view`
+                // Add URL for navigation
+                recordUrl: `/lightning/r/${record.ItemId}/view`,
+                // Add assigned date field (for demo - would come from record in real implementation)
+                LabelAssignedDate: date
             };
             
             return processedRecord;
@@ -468,6 +490,14 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
             return;
         }
         
+        // Clear existing popovers first
+        popoverCells.forEach(cell => {
+            const existingPopovers = cell.querySelectorAll('c-record-detail-popover');
+            existingPopovers.forEach(popover => {
+                cell.removeChild(popover);
+            });
+        });
+        
         // For each cell, initialize a popover
         popoverCells.forEach(cell => {
             // Get record details from data attributes
@@ -486,6 +516,40 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
                 return; // Skip if record not found
             }
             
+            // Get the record details to display in the popover
+            let recordDetails = {};
+            try {
+                // Default fields for all record types
+                recordDetails = {
+                    ...(record.RecordDetails || {}), 
+                    Type: record.ObjectType
+                };
+                
+                // Special formatting for Case records (as per the screenshot)
+                if (record.ObjectApiName === 'Case') {
+                    // Add case-specific fields
+                    recordDetails = {
+                        CaseNumber: record.RecordDetails?.CaseNumber || record.ItemId,
+                        Subject: record.RecordDetails?.Subject || record.SubjectOrName,
+                        Status: record.RecordDetails?.Status || 'Open',
+                        Priority: record.RecordDetails?.Priority || 'Normal'
+                    };
+                }
+                // For Account (as per the screenshot)
+                else if (record.ObjectApiName === 'Account') {
+                    recordDetails = {
+                        Type: record.RecordDetails?.Type || 'Customer',
+                        Phone: record.RecordDetails?.Phone || '(555) 555-5555',
+                        Website: record.RecordDetails?.Website,
+                        'Account Owner': record.RecordDetails?.Owner || 'User User',
+                        'Account Site': record.RecordDetails?.Site,
+                        Industry: record.RecordDetails?.Industry
+                    };
+                }
+            } catch (error) {
+                console.error('Error formatting record details', error);
+            }
+            
             // Create and append RecordDetailPopover component
             const popover = document.createElement('c-record-detail-popover');
             popover.recordId = recordId;
@@ -493,24 +557,7 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
             popover.iconName = iconName;
             popover.name = name;
             popover.objectLabel = record.ObjectType;
-            popover.recordDetails = record.RecordDetails;
-            
-            // Handle mouseover/mouseout events manually for the cell to control the popover
-            cell.addEventListener('mouseover', () => {
-                // Show the popover
-                const popoverElement = cell.querySelector('.slds-popover');
-                if (popoverElement) {
-                    popoverElement.classList.remove('slds-hide');
-                }
-            });
-            
-            cell.addEventListener('mouseout', () => {
-                // Hide the popover
-                const popoverElement = cell.querySelector('.slds-popover');
-                if (popoverElement) {
-                    popoverElement.classList.add('slds-hide');
-                }
-            });
+            popover.recordDetails = recordDetails;
             
             // Add the popover to the cell
             cell.appendChild(popover);
