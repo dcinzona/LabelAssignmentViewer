@@ -9,12 +9,12 @@
 .record-count {
     display: flex;
     align-items: center;
-    padding: 0.5rem 1rem;
-    background-color: #f3f2f2;
+    padding: 0.35rem 1rem;
+    background-color: #f9f9f9;
     border-bottom: 1px solid #dddbda;
     font-size: 0.75rem;
     color: #3e3e3c;
-    font-weight: 700;
+    font-weight: 400;
 }
 
 /* Table styling to match the screenshot exactly */
@@ -43,10 +43,16 @@
 
 /* Row number column */
 .row-number {
-    width: 2rem;
+    width: 1.5rem;
     text-align: left;
     color: #706e6b;
-    padding-left: 1rem;
+    padding-left: 0.75rem;
+    vertical-align: middle;
+}
+
+.index-icon {
+    display: inline-block;
+    vertical-align: middle;
 }
 
 /* Link styling to match screenshot exactly */
