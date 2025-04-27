@@ -88,7 +88,7 @@
                     <div class="slds-no-flex">
                         <template if:true={hasSelectedRows}>
                             <lightning-button 
-                                label="Delete Selected" 
+                                label={deleteButtonLabel}
                                 variant="destructive" 
                                 icon-name="utility:delete" 
                                 onclick={handleDeleteSelected}
@@ -362,7 +362,12 @@
                         id="modal-heading-01"
                         class="slds-modal__title slds-hyphenate"
                     >
-                        Delete Assignment
+                        <template if:true={deletingAssignment}>
+                            Delete Assignment
+                        </template>
+                        <template if:false={deletingAssignment}>
+                            Delete Selected Assignments
+                        </template>
                     </h2>
                 </header>
                 <div
@@ -378,8 +383,9 @@
                     </template>
                     <template if:false={deletingAssignment}>
                         <p>
-                            Are you sure you want to delete the selected
-                            assignment(s)? This action cannot be undone.
+                            Are you sure you want to delete {selectedRowCount} selected 
+                            {selectedRowCount === 1 ? 'assignment' : 'assignments'}? 
+                            This action cannot be undone.
                         </p>
                     </template>
                 </div>

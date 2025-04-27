@@ -499,6 +499,11 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         return !this.hasSelectedRows;
     }
     
+    // Get the number of selected rows for display
+    get selectedRowCount() {
+        return this.selectedRows ? this.selectedRows.length : 0;
+    }
+    
     // Handle row selection from checkboxes
     handleRowSelection(event) {
         const checkboxId = event.target.dataset.id;
@@ -597,10 +602,15 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
             deleteAssignments({ assignmentIds: this.selectedRows })
                 .then(() => {
                     // Show success message
+                    // Create a more readable message based on the number of records deleted
+                    const message = this.selectedRows.length === 1 
+                        ? '1 assignment deleted successfully.'
+                        : `${this.selectedRows.length} assignments deleted successfully.`;
+                        
                     this.dispatchEvent(
                         new ShowToastEvent({
                             title: 'Success',
-                            message: `${this.selectedRows.length} assignment(s) deleted successfully.`,
+                            message: message,
                             variant: 'success'
                         })
                     );
