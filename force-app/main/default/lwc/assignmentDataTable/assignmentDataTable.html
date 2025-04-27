@@ -180,19 +180,19 @@
                             for:index="index"
                         >
                             <tr
-                                key="{assignment.Id}"
+                                key={assignment.Id}"
                                 class="slds-hint-parent"
-                                data-index="{index}"
+                                data-index={index}"
                             >
                                 <td class="row-number">
                                     <span class="index-number">{indexNum}</span>
                                 </td>
                                 <td>
                                     <c-record-detail-popover
-                                        record-id="{assignment.ItemId}"
-                                        object-api-name="{assignment.ObjectApiName}"
-                                        icon-name="{assignment.IconName}"
-                                        name="{assignment.SubjectOrName}"
+                                        record-id={assignment.ItemId}"
+                                        object-api-name={assignment.ObjectApiName}"
+                                        icon-name={assignment.IconName}"
+                                        name={assignment.SubjectOrName}"
                                         object-label="{assignment.ObjectType}"
                                         record-details="{assignment.RecordDetails}"
                                     >
@@ -200,7 +200,7 @@
                                 </td>
                                 <td>
                                     <lightning-formatted-date-time
-                                        value="{assignment.LabelAssignedDate}"
+                                        value={assignment.LabelAssignedDate}"
                                         year="2-digit"
                                         month="2-digit"
                                         day="2-digit"
@@ -218,8 +218,8 @@
                                         <button
                                             class="action-button"
                                             onclick={handleActionClick}"
-                                            data-record-id="{assignment.ItemId}"
-                                            data-record-index="{index}"
+                                            data-record-id={assignment.ItemId}"
+                                            data-record-index={index}"
                                         >
                                             <svg
                                                 width="14"
@@ -239,7 +239,7 @@
                                         </button>
                                         <div
                                             class="slds-dropdown slds-dropdown_right action-menu"
-                                            data-index="{index}"
+                                            data-index={index}"
                                         >
                                             <ul
                                                 class="slds-dropdown__list"
@@ -255,7 +255,7 @@
                                                         role="menuitem"
                                                         tabindex="-1"
                                                         onclick={handleViewRecord}"
-                                                        data-record-id="{assignment.ItemId}"
+                                                        data-record-id={assignment.ItemId}"
                                                     >
                                                         <span
                                                             class="slds-truncate"
@@ -272,7 +272,7 @@
                                                         role="menuitem"
                                                         tabindex="-1"
                                                         onclick={handleDeleteRecord}"
-                                                        data-record-id="{assignment.ItemId}"
+                                                        data-record-id={assignment.ItemId}"
                                                     >
                                                         <span
                                                             class="slds-truncate"
