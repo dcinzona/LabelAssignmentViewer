@@ -9,7 +9,7 @@ public with sharing class LabelAssignmentController {
      * @return List<UserDefinedLabel> List of all UserDefinedLabel records
      */
     @AuraEnabled(cacheable=true)
-    public static List<UserDefinedLabel> getUserDefinedLabels() {
+    public static List<UserDefinedLabel> getLabels() {
         try {
             return [
                 SELECT Id, Name, TotalAssignments
@@ -28,7 +28,7 @@ public with sharing class LabelAssignmentController {
      * @return List<Map<String, Object>> List of enriched assignments for the specified label
      */
     @AuraEnabled(cacheable=true)
-    public static List<Map<String, Object>> getLabelAssignments(String labelId) {
+    public static List<Map<String, Object>> getAssignments(String labelId) {
         try {
             if (String.isBlank(labelId)) {
                 return new List<Map<String, Object>>();
