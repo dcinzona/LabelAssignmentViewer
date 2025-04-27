@@ -3,6 +3,7 @@
     padding: 0.75rem 1rem;
     margin: 0;
     border-bottom: 1px solid #dddbda;
+    background-color: #f9f9f9;
 }
 
 /* Record count bar styling - matches exactly the screenshot */
@@ -221,6 +222,7 @@ th[data-sort-direction="desc"] .sort-icon {
     border-radius: 0.25rem;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
     background: white;
+    margin: 0.75rem;
 }
 
 .slds-card__body {
