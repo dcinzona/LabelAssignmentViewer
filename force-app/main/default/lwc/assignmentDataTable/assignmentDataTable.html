@@ -109,13 +109,14 @@
                             <tr key={assignment.Id} class="slds-hint-parent">
                                 <td class="row-number">{indexPlusOne}</td>
                                 <td>
-                                    <div class="record-hover-container">
-                                        <a href="javascript:void(0);" class="record-link" 
-                                           onclick={handleRecordClick} 
-                                           data-record-id={assignment.ItemId}>
-                                            {assignment.SubjectOrName}
-                                        </a>
-                                    </div>
+                                    <c-record-detail-popover
+                                        record-id={assignment.ItemId}
+                                        object-api-name={assignment.ObjectApiName}
+                                        icon-name={assignment.IconName}
+                                        name={assignment.SubjectOrName}
+                                        object-label={assignment.ObjectType}
+                                        record-details={assignment.RecordDetails}>
+                                    </c-record-detail-popover>
                                 </td>
                                 <td>
                                     <lightning-formatted-date-time

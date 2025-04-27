@@ -20,12 +20,13 @@
     left: -1rem;
     width: 20rem;
     z-index: 9000;
-    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+    box-shadow: 0 2px 4px 4px rgba(0, 0, 0, 0.06);
     border: 1px solid rgb(221, 219, 218);
-}
-
-.record-hover-container:hover .slds-hide {
-    display: block !important;
+    border-radius: 0.25rem;
+    background: white;
+    transition: visibility 0.1s, opacity 0.1s linear;
+    opacity: 0;
+    visibility: hidden;
 }
 
 /* Make sure popover is above other elements */
@@ -33,10 +34,23 @@
     z-index: 9001;
 }
 
+/* Show popover on hover */
+.record-hover-container:hover .popover-panel {
+    visibility: visible;
+    opacity: 1;
+}
+
 /* Custom styling for the field layout in popover */
 .slds-icon_small {
     width: 1.5rem;
     height: 1.5rem;
+    fill: white;
+}
+
+/* Icon container styling */
+.slds-icon_container {
+    padding: 0.25rem;
+    border-radius: 0.25rem;
 }
 
 .slds-popover__header {
@@ -49,6 +63,9 @@
     padding: 0.5rem;
 }
 
-.slds-icon_container {
-    padding: 0.25rem;
+/* Additional spacing for the icon */
+.slds-col.slds-size_1-of-5 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
