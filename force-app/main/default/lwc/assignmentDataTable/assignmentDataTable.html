@@ -89,15 +89,15 @@
                     <thead>
                         <tr class="slds-line-height_reset">
                             <th class="slds-text-title_caps" scope="col" style="width: 50px;"></th>
-                            <th class="slds-text-title_caps" scope="col">
+                            <th class="slds-text-title_caps" scope="col" onclick={handleHeaderClick} data-field="SubjectOrName">
                                 <div class="slds-truncate" title="Record">Record</div>
                                 <div class="sort-icon"></div>
                             </th>
-                            <th class="slds-text-title_caps" scope="col">
+                            <th class="slds-text-title_caps" scope="col" onclick={handleHeaderClick} data-field="LabelAssignedDate">
                                 <div class="slds-truncate" title="Label Assigned Date">Label Assigned Date</div>
                                 <div class="sort-icon"></div>
                             </th>
-                            <th class="slds-text-title_caps" scope="col">
+                            <th class="slds-text-title_caps" scope="col" onclick={handleHeaderClick} data-field="ObjectType">
                                 <div class="slds-truncate" title="Object Type">Object Type</div>
                                 <div class="sort-icon"></div>
                             </th>

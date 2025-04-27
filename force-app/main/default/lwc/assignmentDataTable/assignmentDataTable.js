@@ -325,6 +325,44 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         this.sortData(this.sortBy, this.sortDirection);
     }
     
+    // Handle header click for sorting our custom table
+    handleHeaderClick(event) {
+        const fieldName = event.currentTarget.dataset.field;
+        
+        if (fieldName) {
+            // Toggle sort direction if clicking on the same field
+            if (this.sortBy === fieldName) {
+                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sortBy = fieldName;
+                this.sortDirection = 'asc'; // Default to ascending for new field
+            }
+            
+            // Sort the data with the new sort parameters
+            this.sortData(this.sortBy, this.sortDirection);
+            
+            // Update visual indicators for sort
+            this.updateSortIndicators();
+        }
+    }
+    
+    // Update the visual indicators for the sorted column
+    updateSortIndicators() {
+        // Reset all headers
+        const headers = this.template.querySelectorAll('th[data-field]');
+        headers.forEach(header => {
+            header.removeAttribute('data-sort-active');
+            header.removeAttribute('data-sort-direction');
+        });
+        
+        // Set active sort on current column
+        const activeHeader = this.template.querySelector(`th[data-field="${this.sortBy}"]`);
+        if (activeHeader) {
+            activeHeader.setAttribute('data-sort-active', 'true');
+            activeHeader.setAttribute('data-sort-direction', this.sortDirection);
+        }
+    }
+    
     // Sort the data based on field and direction
     sortData(fieldName, direction) {
         // Clone the data to avoid modifying the original data
@@ -567,6 +605,11 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     // Initialize popovers for ItemId fields when component is rendered
     renderedCallback() {
         this.initializePopovers();
+        
+        // Update sort indicators if we have a sort field
+        if (this.sortBy) {
+            this.updateSortIndicators();
+        }
     }
     
     // Initialize popovers for record detail - simpler implementation for the demo

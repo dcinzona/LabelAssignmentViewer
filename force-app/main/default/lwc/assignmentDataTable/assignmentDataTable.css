@@ -137,6 +137,41 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.0625rem;
+    position: relative;
+}
+
+/* Column header sort icon */
+.sort-icon {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23706e6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5"/></svg>');
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.4;
+}
+
+/* Sortable headers should have a pointer cursor */
+th[onclick] {
+    cursor: pointer;
+}
+
+/* Active sort column */
+th[data-sort-active="true"] .sort-icon {
+    opacity: 1;
+}
+
+/* Ascending sort */
+th[data-sort-direction="asc"] .sort-icon {
+    transform: translateY(-50%) rotate(0deg);
+}
+
+/* Descending sort */
+th[data-sort-direction="desc"] .sort-icon {
+    transform: translateY(-50%) rotate(180deg);
 }
 
 /* Standard SLDS card overrides to match screenshot */
