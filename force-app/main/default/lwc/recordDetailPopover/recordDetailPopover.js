@@ -1,44 +1,72 @@
 import { LightningElement, api } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
 
-export default class RecordDetailPopover extends LightningElement {
+export default class RecordDetailPopover extends NavigationMixin(LightningElement) {
     @api recordId;
-    @api recordType;
-    @api recordName;
+    @api objectApiName;
     @api iconName;
-    @api fields = [];
+    @api name;
+    @api objectLabel;
+    @api recordDetails;
+    @api uniqueId;
     
-    // Generates a unique ID for the popover
+    // Generate a unique ID for the component if not provided
     get uniqueId() {
-        return `popover_${this.recordId}_${Date.now()}`;
+        return this.uniqueId || `popover-${this.recordId}`;
     }
     
-    // Returns the icon name with namespace prefixes for the SVG symbols
+    // Format the icon name for use in the template
     get formattedIconName() {
-        if (!this.iconName) return 'standard:custom';
-        
-        const parts = this.iconName.split(':');
-        if (parts.length !== 2) return 'standard:custom';
-        
-        return parts[1];
+        return this.iconName || 'standard:default';
     }
     
-    // Returns the icon category (standard, utility, etc.)
+    // Get the category of the icon (e.g., 'standard', 'utility', 'custom')
     get iconCategory() {
-        if (!this.iconName) return 'standard';
-        
-        const parts = this.iconName.split(':');
-        if (parts.length !== 2) return 'standard';
-        
-        return parts[0];
+        return this.formattedIconName.split(':')[0] || 'standard';
     }
     
-    // Formats the SVG URL based on the icon category
+    // Build the SVG URL for the icon
     get svgUrl() {
-        return `/assets/icons/${this.iconCategory}-sprite/svg/symbols.svg#${this.formattedIconName}`;
+        return `/assets/icons/${this.iconCategory}-sprite/svg/symbols.svg#${this.formattedIconName.split(':')[1] || 'default'}`;
     }
     
-    // Returns the CSS class for the icon
+    // Build the CSS class for the icon container
     get iconClass() {
-        return `slds-icon slds-icon_small slds-icon-${this.iconCategory}-${this.formattedIconName}`;
+        return `slds-icon_container slds-icon-${this.formattedIconName.replace(':', '-')}`;
+    }
+    
+    // Check if the record is a Case
+    get isCaseRecord() {
+        return this.objectApiName === 'Case';
+    }
+    
+    // Format the record details for display in the popover
+    get objectFields() {
+        if (!this.recordDetails) {
+            return [];
+        }
+        
+        // Convert record details to array of field objects
+        return Object.entries(this.recordDetails)
+            .filter(([key]) => key !== 'Id') // Filter out the Id field
+            .map(([key, value]) => {
+                return {
+                    key,
+                    label: key,
+                    value: value || 'N/A'
+                };
+            });
+    }
+    
+    // Navigate to the record
+    navigateToRecord() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__recordPage',
+            attributes: {
+                recordId: this.recordId,
+                objectApiName: this.objectApiName,
+                actionName: 'view'
+            }
+        });
     }
 }

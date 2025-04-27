@@ -16,41 +16,22 @@
     display: block !important;
 }
 
-.slds-popover__body {
-    padding: 0.75rem;
+.slds-icon_container {
+    padding: 0.25rem;
 }
 
-.slds-popover__body p {
-    margin-bottom: 0.25rem;
-    font-size: 0.8125rem;
+a {
+    color: rgb(0, 112, 210);
+    text-decoration: none;
+    cursor: pointer;
 }
 
-.slds-popover__body h3 {
-    font-weight: 700;
-    margin-bottom: 0.5rem;
+a:hover {
+    text-decoration: underline;
 }
 
-/* Standard icon background colors */
-.slds-icon-standard-case {
-    background-color: #f2cf5b;
-}
-
-.slds-icon-standard-account {
-    background-color: #7f8de1;
-}
-
-.slds-icon-standard-contact {
-    background-color: #a094ed;
-}
-
-.slds-icon-standard-opportunity {
-    background-color: #fcb95b;
-}
-
-.slds-icon-standard-lead {
-    background-color: #f88962;
-}
-
-.slds-icon-standard-custom {
-    background-color: #8199af;
+.slds-popover__footer {
+    border-top: 1px solid rgb(221, 219, 218);
+    text-align: right;
+    padding: 0.5rem 0.75rem;
 }

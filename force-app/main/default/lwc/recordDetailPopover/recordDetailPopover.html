@@ -1,24 +1,93 @@
 <template>
-    <span aria-describedby={uniqueId} class="item-id-hover">
-        <slot></slot>
-        <span class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left slds-hide" role="tooltip" id={uniqueId}>
-            <div class="slds-popover__body">
-                <div class="slds-media">
+    <div class="item-id-hover" data-id={recordId}>
+        <div class="slds-grid slds-grid_vertical-align-center">
+            <!-- Icon -->
+            <div class="slds-col slds-shrink">
+                <span class={iconClass}>
+                    <span class="slds-icon_container slds-icon-standard-case" title={objectLabel}>
+                        <svg class="slds-icon" aria-hidden="true">
+                            <use xlink:href={svgUrl}></use>
+                        </svg>
+                    </span>
+                </span>
+            </div>
+            <!-- Record name -->
+            <div class="slds-col slds-p-left_x-small">
+                <a onclick={navigateToRecord} title={name}>{name}</a>
+            </div>
+        </div>
+        
+        <!-- Popover -->
+        <div class="slds-popover slds-popover_panel slds-nubbin_top-left slds-hide" role="dialog" data-popover-id={uniqueId}>
+            <div class="slds-popover__header">
+                <header class="slds-media slds-media_center slds-m-bottom_small">
                     <div class="slds-media__figure">
-                        <span class="slds-icon_container" title={recordType}>
-                            <svg class={iconClass} aria-hidden="true">
-                                <use xlink:href={svgUrl}></use>
-                            </svg>
+                        <span class={iconClass}>
+                            <span class="slds-icon_container" title={objectLabel}>
+                                <svg class="slds-icon" aria-hidden="true">
+                                    <use xlink:href={svgUrl}></use>
+                                </svg>
+                            </span>
                         </span>
                     </div>
                     <div class="slds-media__body">
-                        <h3 class="slds-text-heading_small">{recordType}: {recordName}</h3>
-                        <template for:each={fields} for:item="field">
-                            <p key={field.label}>{field.label}: {field.value}</p>
-                        </template>
+                        <h2 class="slds-truncate slds-text-heading_small" title={name}>
+                            <a onclick={navigateToRecord} title={name}>{name}</a>
+                        </h2>
                     </div>
-                </div>
+                </header>
             </div>
-        </span>
-    </span>
+            <div class="slds-popover__body">
+                <template if:true={isCaseRecord}>
+                    <!-- Case record details -->
+                    <dl class="slds-dl_horizontal slds-m-bottom_x-small">
+                        <dt class="slds-dl_horizontal__label slds-truncate" title="Case Number">
+                            <span>Case Number:</span>
+                        </dt>
+                        <dd class="slds-dl_horizontal__detail slds-truncate" title={recordDetails.CaseNumber}>
+                            <span>{recordDetails.CaseNumber}</span>
+                        </dd>
+
+                        <dt class="slds-dl_horizontal__label slds-truncate" title="Subject">
+                            <span>Subject:</span>
+                        </dt>
+                        <dd class="slds-dl_horizontal__detail slds-truncate" title={recordDetails.Subject}>
+                            <span>{recordDetails.Subject}</span>
+                        </dd>
+
+                        <dt class="slds-dl_horizontal__label slds-truncate" title="Status">
+                            <span>Status:</span>
+                        </dt>
+                        <dd class="slds-dl_horizontal__detail slds-truncate" title={recordDetails.Status}>
+                            <span>{recordDetails.Status}</span>
+                        </dd>
+
+                        <dt class="slds-dl_horizontal__label slds-truncate" title="Priority">
+                            <span>Priority:</span>
+                        </dt>
+                        <dd class="slds-dl_horizontal__detail slds-truncate" title={recordDetails.Priority}>
+                            <span>{recordDetails.Priority}</span>
+                        </dd>
+                    </dl>
+                </template>
+                
+                <template if:false={isCaseRecord}>
+                    <!-- Generic record details -->
+                    <dl class="slds-dl_horizontal slds-m-bottom_x-small">
+                        <template for:each={objectFields} for:item="field">
+                            <dt key={field.key} class="slds-dl_horizontal__label slds-truncate" title={field.label}>
+                                <span>{field.label}:</span>
+                            </dt>
+                            <dd key={field.key} class="slds-dl_horizontal__detail slds-truncate" title={field.value}>
+                                <span>{field.value}</span>
+                            </dd>
+                        </template>
+                    </dl>
+                </template>
+            </div>
+            <div class="slds-popover__footer">
+                <a onclick={navigateToRecord} title="View Record">View Record</a>
+            </div>
+        </div>
+    </div>
 </template>
