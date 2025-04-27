@@ -326,6 +326,26 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         return `${Math.min(50, this.filteredAssignments.length)} of ${this.filteredAssignments.length} items`;
     }
     
+    // Show empty selection state when no label is selected
+    get showEmptySelectionState() {
+        return !this.labelId;
+    }
+    
+    // Show empty assignments state when label is selected but no assignments found
+    get showNoAssignmentsState() {
+        return this.labelId && this.assignments.length === 0 && !this.isLoading && !this.error;
+    }
+    
+    // Show data table when there are assignments to display
+    get showDataTable() {
+        return this.labelId && this.assignments.length > 0 && !this.isLoading && !this.error;
+    }
+    
+    // Hide data table (opposite of showDataTable)
+    get dontShowDataTable() {
+        return !this.showDataTable;
+    }
+    
     // Check if rows are selected
     get hasSelectedRows() {
         return this.selectedRows && this.selectedRows.length > 0;
