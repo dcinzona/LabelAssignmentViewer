@@ -481,6 +481,12 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         return `${Math.min(50, this.filteredAssignments.length)} of ${this.filteredAssignments.length} items`;
     }
     
+    // Get record count text
+    get recordCountText() {
+        const count = this.filteredAssignments.length;
+        return count === 1 ? '1 record' : `${count} records`;
+    }
+    
 
     
     // Check if rows are selected
