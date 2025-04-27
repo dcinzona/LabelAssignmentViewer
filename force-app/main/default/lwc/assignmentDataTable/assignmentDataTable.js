@@ -646,7 +646,25 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
                     .then(result => {
                         this.processAssignments(result);
                         this.error = undefined;
+                        
+                        // Clear selected rows
                         this.selectedRows = [];
+                        
+                        // Clear all checkboxes
+                        setTimeout(() => {
+                            // Reset the select all checkbox
+                            const selectAllCheckbox = this.template.querySelector('#select-all');
+                            if (selectAllCheckbox) {
+                                selectAllCheckbox.checked = false;
+                            }
+                            
+                            // Reset all row checkboxes
+                            const checkboxes = this.template.querySelectorAll('input[name="options"]');
+                            checkboxes.forEach(checkbox => {
+                                checkbox.checked = false;
+                            });
+                        }, 0);
+                        
                         resolve();
                     })
                     .catch(error => {
