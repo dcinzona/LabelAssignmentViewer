@@ -86,6 +86,15 @@
                         </h2>
                     </div>
                     <div class="slds-no-flex">
+                        <template if:true={hasSelectedRows}>
+                            <lightning-button 
+                                label="Delete Selected" 
+                                variant="destructive" 
+                                icon-name="utility:delete" 
+                                onclick={handleDeleteSelected}
+                                class="slds-m-right_x-small"
+                            ></lightning-button>
+                        </template>
                         <lightning-button-icon
                             icon-name="utility:refresh"
                             variant="border-filled"
@@ -126,10 +135,20 @@
                     <thead>
                         <tr class="slds-line-height_reset">
                             <th
-                                class="slds-text-title_caps"
+                                class="slds-text-title_caps slds-cell-fixed"
                                 scope="col"
                                 style="width: 50px"
-                            ></th>
+                            >
+                                <div class="slds-th__action">
+                                    <span class="slds-checkbox">
+                                        <input type="checkbox" name="select-all" id="select-all" onclick={handleSelectAll} />
+                                        <label class="slds-checkbox__label" for="select-all">
+                                            <span class="slds-checkbox_faux"></span>
+                                            <span class="slds-form-element__label slds-assistive-text">Select All</span>
+                                        </label>
+                                    </span>
+                                </div>
+                            </th>
                             <th
                                 class="slds-text-title_caps"
                                 scope="col"
@@ -185,7 +204,20 @@
                                 data-index={index}
                             >
                                 <td class="row-number">
-                                    <span class="index-number">{indexNum}</span>
+                                    <span class="slds-checkbox">
+                                        <input 
+                                            type="checkbox" 
+                                            name="options" 
+                                            id={assignment.Id} 
+                                            data-id={assignment.Id}
+                                            data-index={index}
+                                            onclick={handleRowSelection} 
+                                        />
+                                        <label class="slds-checkbox__label" for={assignment.Id}>
+                                            <span class="slds-checkbox_faux"></span>
+                                            <span class="slds-form-element__label slds-assistive-text">Select Row</span>
+                                        </label>
+                                    </span>
                                 </td>
                                 <td>
                                     <c-record-detail-popover
