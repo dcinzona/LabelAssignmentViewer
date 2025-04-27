@@ -1,6 +1,6 @@
 <template>
     <!-- Loading spinner -->
-    <template if:true="{isLoading}">
+    <template if:true={isLoading}>
         <div class="slds-is-relative slds-p-around_medium">
             <lightning-spinner
                 alternative-text="Loading"
@@ -10,7 +10,7 @@
     </template>
 
     <!-- Error message -->
-    <template if:true="{error}">
+    <template if:true={error}>
         <div
             class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error"
             role="alert"
@@ -29,7 +29,7 @@
     </template>
 
     <!-- Empty state message when no label is selected -->
-    <template if:true="{showEmptySelectionState}">
+    <template if:true={showEmptySelectionState}">
         <div
             class="slds-illustration slds-illustration_small slds-p-around_small slds-m-around_small slds-box slds-theme_shade"
         >
@@ -45,19 +45,19 @@
     </template>
 
     <!-- Empty state message when no assignments found -->
-    <template if:true="{showNoAssignmentsState}">
+    <template if:true={showNoAssignmentsState}">
         <div
             class="slds-illustration slds-illustration_small slds-p-around_small slds-box slds-theme_shade"
         >
             <div class="slds-text-longform">
                 <h3 class="slds-text-heading_small">No assignments found</h3>
-                <template if:true="{isSearching}">
+                <template if:true={isSearching}">
                     <p class="slds-text-body_small">
                         No assignments match your search criteria. Try a
                         different search term.
                     </p>
                 </template>
-                <template if:false="{isSearching}">
+                <template if:false={isSearching}">
                     <p class="slds-text-body_small">
                         There are no assignments for the selected label.
                     </p>
@@ -67,7 +67,7 @@
     </template>
 
     <!-- Data table for assignments -->
-    <template if:true="{showDataTable}">
+    <template if:true={showDataTable}">
         <div class="slds-card">
             <!-- Card header with title and action buttons -->
             <div class="slds-card__header slds-grid">
@@ -91,7 +91,7 @@
                             variant="border-filled"
                             alternative-text="Refresh"
                             title="Refresh"
-                            onclick="{refreshData}"
+                            onclick={refreshData}"
                             class="slds-m-left_xx-small"
                         >
                         </lightning-button-icon>
@@ -111,7 +111,7 @@
             <div class="record-count">
                 <div class="slds-text-color_weak slds-text-body_small">
                     {filteredAssignments.length} item<template
-                        if:true="{showPlural}"
+                        if:true={showPlural}"
                         >s</template
                     >
                     • Updated {formattedDateTime}
@@ -133,7 +133,7 @@
                             <th
                                 class="slds-text-title_caps"
                                 scope="col"
-                                onclick="{handleHeaderClick}"
+                                onclick={handleHeaderClick}"
                                 data-field="SubjectOrName"
                             >
                                 <div class="slds-truncate" title="Record">
@@ -144,7 +144,7 @@
                             <th
                                 class="slds-text-title_caps"
                                 scope="col"
-                                onclick="{handleHeaderClick}"
+                                onclick={handleHeaderClick}"
                                 data-field="LabelAssignedDate"
                             >
                                 <div
@@ -158,7 +158,7 @@
                             <th
                                 class="slds-text-title_caps"
                                 scope="col"
-                                onclick="{handleHeaderClick}"
+                                onclick={handleHeaderClick}"
                                 data-field="ObjectType"
                             >
                                 <div class="slds-truncate" title="Object Type">
@@ -175,7 +175,7 @@
                     </thead>
                     <tbody>
                         <template
-                            for:each="{filteredAssignments}"
+                            for:each={filteredAssignments}"
                             for:item="assignment"
                             for:index="index"
                         >
@@ -217,7 +217,7 @@
                                     >
                                         <button
                                             class="action-button"
-                                            onclick="{handleActionClick}"
+                                            onclick={handleActionClick}"
                                             data-record-id="{assignment.ItemId}"
                                             data-record-index="{index}"
                                         >
@@ -254,7 +254,7 @@
                                                         href="javascript:void(0);"
                                                         role="menuitem"
                                                         tabindex="-1"
-                                                        onclick="{handleViewRecord}"
+                                                        onclick={handleViewRecord}"
                                                         data-record-id="{assignment.ItemId}"
                                                     >
                                                         <span
@@ -271,7 +271,7 @@
                                                         href="javascript:void(0);"
                                                         role="menuitem"
                                                         tabindex="-1"
-                                                        onclick="{handleDeleteRecord}"
+                                                        onclick={handleDeleteRecord}"
                                                         data-record-id="{assignment.ItemId}"
                                                     >
                                                         <span
@@ -302,7 +302,7 @@
     </template>
 
     <!-- Delete Confirmation Modal -->
-    <template if:true="{isDeleteModalOpen}">
+    <template if:true={isDeleteModalOpen}">
         <section
             role="dialog"
             tabindex="-1"
@@ -316,7 +316,7 @@
                     <button
                         class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
                         title="Close"
-                        onclick="{cancelDeleteSelected}"
+                        onclick={cancelDeleteSelected}"
                     >
                         <lightning-icon
                             icon-name="utility:close"
@@ -337,14 +337,14 @@
                     class="slds-modal__content slds-p-around_medium"
                     id="modal-content-id-1"
                 >
-                    <template if:true="{deletingAssignment}">
+                    <template if:true={deletingAssignment}">
                         <p>
                             Are you sure you want to delete the assignment for
                             "{deletingAssignment.SubjectOrName}"? This action
                             cannot be undone.
                         </p>
                     </template>
-                    <template if:false="{deletingAssignment}">
+                    <template if:false={deletingAssignment}">
                         <p>
                             Are you sure you want to delete the selected
                             assignment(s)? This action cannot be undone.
@@ -354,13 +354,13 @@
                 <footer class="slds-modal__footer">
                     <button
                         class="slds-button slds-button_neutral"
-                        onclick="{cancelDeleteSelected}"
+                        onclick={cancelDeleteSelected}"
                     >
                         Cancel
                     </button>
                     <button
                         class="slds-button slds-button_destructive"
-                        onclick="{deleteSelectedAssignments}"
+                        onclick={deleteSelectedAssignments}"
                     >
                         Delete
                     </button>
