@@ -3,177 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salesforce Label Assignment Viewer - Refactored</title>
+    <title>Salesforce Record Assignments Demo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.20.1/styles/salesforce-lightning-design-system.min.css" />
     <style>
         body {
-            padding: 2rem;
+            padding: 0;
+            margin: 0;
             background-color: #f3f3f3;
+            font-family: 'Salesforce Sans', Arial, sans-serif;
         }
-        .component-section {
-            background-color: white;
-            padding: 2rem;
+        
+        /* Main container */
+        .assignment-container {
+            background-color: #fff;
+            border: 1px solid #dddbda;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
             border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+            margin: 1rem;
         }
-        .code-block {
-            background-color: #f8f8f8;
-            padding: 1rem;
-            border-radius: 4px;
-            margin: 1rem 0;
-            font-family: monospace;
-            white-space: pre-wrap;
-            font-size: 0.9rem;
-            overflow-x: auto;
-        }
-        .feature-list {
-            margin: 1rem 0;
-        }
-        .feature-item {
+        
+        /* Header styling - matches exactly the screenshot */
+        .assignment-header {
             display: flex;
-            margin-bottom: 0.5rem;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #dddbda;
         }
-        .feature-icon {
+        
+        .assignment-title {
+            display: flex;
+            align-items: center;
+        }
+        
+        .assignment-title img {
             margin-right: 0.5rem;
-            color: #04844b;
+            width: 20px;
+            height: 20px;
         }
-        .component-container {
-            border: 1px solid #d8dde6;
+        
+        .assignment-title span {
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #080707;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.25rem;
+        }
+        
+        /* Info bar styling */
+        .info-bar {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background-color: #f3f2f2;
+            border-bottom: 1px solid #dddbda;
+            font-size: 0.75rem;
+            color: #3e3e3c;
+        }
+        
+        /* Table styling to match the screenshot exactly */
+        .assignment-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .assignment-table th {
+            background-color: #f3f2f2;
+            text-align: left;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: normal;
+            color: #444;
+            border-bottom: 1px solid #dddbda;
+            position: relative;
+        }
+        
+        .assignment-table th:after {
+            content: '';
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .assignment-table td {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            border-bottom: 1px solid #dddbda;
+            color: #080707;
+        }
+        
+        /* Row number column */
+        .row-number {
+            width: 2rem;
+            text-align: center;
+            color: #706e6b;
+        }
+        
+        /* Link styling */
+        .record-link {
+            color: rgb(0, 112, 210);
+            text-decoration: none;
+        }
+        
+        .record-link:hover {
+            color: rgb(0, 95, 178);
+            text-decoration: underline;
+        }
+        
+        /* Action button styling */
+        .action-button {
+            background: none;
+            border: 1px solid #dddbda;
             border-radius: 4px;
-            margin-top: 2rem;
+            padding: 0.25rem;
+            cursor: pointer;
+        }
+        
+        /* View All link */
+        .view-all {
+            display: block;
+            text-align: center;
+            padding: 0.5rem;
+            color: rgb(0, 112, 210);
+            text-decoration: none;
+            font-size: 0.75rem;
+        }
+        
+        .view-all:hover {
+            text-decoration: underline;
+        }
+        
+        /* Record hover container */
+        .record-hover-container {
+            position: relative;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
-    <div class="slds-scope">
-        <div class="slds-grid slds-gutters">
-            <div class="slds-col slds-size_1-of-1 slds-large-size_8-of-12 slds-m-horizontal_auto">
-                <div class="slds-text-heading_large slds-text-align_center slds-m-bottom_medium">Salesforce Label Assignment Viewer</div>
-                <div class="slds-text-heading_medium slds-text-align_center slds-m-bottom_large">Refactored Component Demonstration</div>
-                
-                <div class="component-section">
-                    <div class="slds-text-heading_medium slds-m-bottom_medium">Refactoring Overview</div>
-                    <p class="slds-m-bottom_medium">
-                        This project demonstrates a refactored Salesforce Lightning Web Component for managing UserDefinedLabel records and their associated UserDefinedLabelAssignment records. The original monolithic component has been refactored into a set of modular, reusable components following Salesforce best practices.
-                    </p>
-                    
-                    <div class="slds-text-heading_small slds-m-bottom_small">Component Structure</div>
-                    <div class="feature-list">
-                        <div class="feature-item">
-                            <div class="feature-icon">✓</div>
-                            <div><strong>labelAssignmentViewer</strong> - Main container component that orchestrates the others</div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">✓</div>
-                            <div><strong>labelSelector</strong> - Combobox to select labels with delete functionality</div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">✓</div>
-                            <div><strong>assignmentDataTable</strong> - Displays and manages assignments with search, sort and delete</div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">✓</div>
-                            <div><strong>recordDetailPopover</strong> - Shows record details on hover for enhanced user experience</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="component-section">
-                    <div class="slds-text-heading_medium slds-m-bottom_medium">Features Implemented</div>
-                    <div class="slds-grid slds-wrap slds-gutters">
-                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
-                            <div class="feature-list">
-                                <div class="feature-item">
-                                    <div class="feature-icon">✓</div>
-                                    <div>Modular component architecture</div>
-                                </div>
-                                <div class="feature-item">
-                                    <div class="feature-icon">✓</div>
-                                    <div>Label selection via combobox</div>
-                                </div>
-                                <div class="feature-item">
-                                    <div class="feature-icon">✓</div>
-                                    <div>Label deletion with confirmation</div>
-                                </div>
-                                <div class="feature-item">
-                                    <div class="feature-icon">✓</div>
-                                    <div>Assignment searching and filtering</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="slds-col slds-size_1-of-1 slds-large-size_1-of-2">
-                            <div class="feature-list">
-                                <div class="feature-item">
-                                    <div class="feature-icon">✓</div>
-                                    <div>Hover-based record details</div>
-                                </div>
-                                <div class="feature-item">
-                                    <div class="feature-icon">✓</div>
-                                    <div>Bulk delete selected assignments</div>
-                                </div>
-                                <div class="feature-item">
-                                    <div class="feature-icon">✓</div>
-                                    <div>Special handling for Case records</div>
-                                </div>
-                                <div class="feature-item">
-                                    <div class="feature-icon">✓</div>
-                                    <div>Proper loading and empty states</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="component-section">
-                    <div class="slds-text-heading_medium slds-m-bottom_medium">Component Diagram</div>
-                    <div class="code-block">
-    labelAssignmentViewer (main container)
-    ├── labelSelector (select/delete labels)
-    │   ├── Fires: labelselect event
-    │   ├── Fires: labeldelete event
-    │   └── API: refreshData()
-    ├── assignmentDataTable (show/manage assignments)
-    │   ├── Props: labelId, labelName
-    │   └── API: refreshData()
-    └── recordDetailPopover (used within datatable)
-        ├── Props: recordId, objectApiName, iconName, name, etc.
-        └── Hover UI: Shows record details
-                    </div>
-                </div>
-                
-                <div class="component-section">
-                    <div class="slds-text-heading_medium slds-m-bottom_medium">Code Organization Benefits</div>
-                    <p class="slds-m-bottom_small">
-                        This refactoring improves the component by:
-                    </p>
-                    <ul class="slds-list_dotted">
-                        <li class="slds-m-bottom_x-small">Separating concerns into modular, reusable components</li>
-                        <li class="slds-m-bottom_x-small">Improving code maintainability and testability</li>
-                        <li class="slds-m-bottom_x-small">Following Salesforce best practices for component architecture</li>
-                        <li class="slds-m-bottom_x-small">Enhancing user experience with interactive elements like hovers</li>
-                        <li class="slds-m-bottom_x-small">Implementing proper event-based communication between components</li>
-                    </ul>
-                </div>
-                
-                <div class="component-section">
-                    <div class="slds-text-heading_medium slds-m-bottom_medium">Usage in Salesforce</div>
-                    <p class="slds-m-bottom_small">
-                        The component can be added to any Lightning App Page, Record Page, or Home Page using the Lightning App Builder:
-                    </p>
-                    <div class="code-block">
-&lt;c-label-assignment-viewer&gt;&lt;/c-label-assignment-viewer&gt;
-                    </div>
-                    <p class="slds-m-top_small">
-                        The component automatically handles loading, displaying, and managing UserDefinedLabel records and their assignments.
-                    </p>
-                </div>
-                
-                <footer class="slds-text-align_center slds-p-around_large slds-text-color_weak">
-                    Salesforce Label Assignment Viewer - Refactored Component Demo
-                </footer>
+    <div class="assignment-container">
+        <!-- Header with title and buttons -->
+        <div class="assignment-header">
+            <div class="assignment-title">
+                <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%231589ee'><rect width='20' height='20' rx='4' fill='%231589ee'/><path d='M12 6v12M6 12h12' stroke='white' stroke-width='2'/></svg>" alt="Record icon">
+                <span>Record Assignments (2)</span>
+            </div>
+            <div class="header-actions">
+                <button class="action-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 3l-7 7 7 7" stroke="#706e6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 10h16a4 4 0 014 4v6" stroke="#706e6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button class="action-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="1" fill="#706e6b"/>
+                        <circle cx="6" cy="12" r="1" fill="#706e6b"/>
+                        <circle cx="18" cy="12" r="1" fill="#706e6b"/>
+                    </svg>
+                </button>
             </div>
         </div>
+        
+        <!-- Info bar with count and last updated -->
+        <div class="info-bar">
+            <span>2 items • Updated 4 minutes ago</span>
+        </div>
+        
+        <!-- Assignment table -->
+        <table class="assignment-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px;"></th>
+                    <th>Record</th>
+                    <th>Label Assigned Date</th>
+                    <th>Object Type</th>
+                    <th style="width: 50px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="row-number">1</td>
+                    <td>
+                        <div class="record-hover-container">
+                            <a href="#" class="record-link">00001026</a>
+                        </div>
+                    </td>
+                    <td>4/25/2025, 8:16 PM</td>
+                    <td>Case</td>
+                    <td>
+                        <button class="action-button">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 5v14M5 12h14" stroke="#706e6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="row-number">2</td>
+                    <td>
+                        <div class="record-hover-container">
+                            <a href="#" class="record-link">test acc 1</a>
+                        </div>
+                    </td>
+                    <td>4/25/2025, 8:29 PM</td>
+                    <td>Account</td>
+                    <td>
+                        <button class="action-button">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 5v14M5 12h14" stroke="#706e6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- View All link -->
+        <a href="#" class="view-all">View All</a>
     </div>
 </body>
 </html>

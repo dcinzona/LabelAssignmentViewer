@@ -1,52 +1,149 @@
-/* Datatable row hover styles */
-.record-name-link {
-    color: rgb(0, 112, 210);
-    text-decoration: none;
+/* Card header styling */
+.slds-card__header {
+    padding: 0.75rem 1rem;
+    margin: 0;
+    border-bottom: 1px solid #dddbda;
 }
 
-.record-name-link:hover {
-    color: rgb(0, 95, 178);
+/* Record count bar styling - matches exactly the screenshot */
+.record-count {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: #f3f2f2;
+    border-bottom: 1px solid #dddbda;
+    font-size: 0.75rem;
+    color: #3e3e3c;
+    font-weight: 700;
+}
+
+/* Table styling to match the screenshot exactly */
+.assignment-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.assignment-table th {
+    background-color: #f3f2f2;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: #444;
+    border-bottom: 1px solid #dddbda;
+    position: relative;
+}
+
+.assignment-table td {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    border-bottom: 1px solid #dddbda;
+    color: #080707;
+}
+
+/* Row number column */
+.row-number {
+    width: 2rem;
+    text-align: center;
+    color: #706e6b;
+}
+
+/* Link styling to match screenshot */
+.record-link {
+    color: rgb(0, 112, 210) !important;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.record-link:hover {
+    color: rgb(0, 95, 178) !important;
     text-decoration: underline;
 }
 
-/* Base popover cell styles */
-.record-popover-cell {
-    position: relative;
+/* View All link styling */
+.view-all-link {
+    color: rgb(0, 112, 210);
+    text-decoration: none;
+    font-size: 0.75rem;
 }
 
-/* Popover styling */
+.view-all-link:hover {
+    text-decoration: underline;
+}
+
+/* Record hover container for positioning the popover */
+.record-hover-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Action button menu styling */
+.action-menu button {
+    border: 1px solid #dddbda !important;
+    border-radius: 4px !important;
+    padding: 0.25rem !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+}
+
+/* Make sure the button menu icon is properly sized and aligned */
+.action-menu .slds-button__icon {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+}
+
+/* Hover states for rows */
+.slds-hint-parent:hover {
+    background-color: #f8f8f8;
+}
+
+/* Custom popover styling for record hover */
 .slds-popover {
     position: absolute;
-    top: 2rem;
+    top: 100%;
     left: 0;
-    width: 320px;
-    max-width: 400px;
     z-index: 9000;
+    width: 20rem;
+    max-width: 20rem;
+    background: white;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
     box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
 }
 
-/* Make sure popover is visible on hover */
-.record-popover-cell:hover {
-    z-index: 9001;
+.slds-popover__header {
+    background-color: #f3f2f2;
+    border-bottom: 1px solid #dddbda;
+    padding: 0.5rem;
 }
 
-/* Set relative position for container */
-.item-id-hover {
-    position: relative;
-    cursor: pointer;
+.slds-popover__body {
+    padding: 0.5rem;
 }
 
-/* Popover positioning */
-.item-id-hover .slds-popover {
-    position: absolute;
-    top: 2rem;
-    left: 0;
-    width: 320px;
-    max-width: 400px;
-    z-index: 9000;
+/* Make font sizes match the screenshot */
+.slds-text-title_caps {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.0625rem;
 }
 
-/* Force display on hover */
-.item-id-hover:hover .slds-hide {
-    display: block !important;
+/* Standard SLDS card overrides to match screenshot */
+.slds-card {
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.slds-card__body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Fix the icon sizing and alignment */
+.slds-icon_small {
+    width: 1.5rem;
+    height: 1.5rem;
 }
