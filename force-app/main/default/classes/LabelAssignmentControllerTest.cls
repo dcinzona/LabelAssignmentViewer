@@ -46,13 +46,13 @@ private class LabelAssignmentControllerTest {
     }
     
     /**
-     * @description Test getUserDefinedLabels method returns labels with correct filter
+     * @description Test getLabels method returns labels with correct filter
      */
     @isTest
-    static void testGetUserDefinedLabels() {
+    static void testGetLabels() {
         Test.startTest();
         
-        List<UserDefinedLabel> labels = LabelAssignmentController.getUserDefinedLabels();
+        List<UserDefinedLabel> labels = LabelAssignmentController.getLabels();
         
         Test.stopTest();
         
@@ -66,13 +66,13 @@ private class LabelAssignmentControllerTest {
     }
     
     /**
-     * @description Test getLabelAssignments method with empty labelId
+     * @description Test getAssignments method with empty labelId
      */
     @isTest
-    static void testGetLabelAssignmentsWithEmptyId() {
+    static void testGetAssignmentsWithEmptyId() {
         Test.startTest();
         
-        List<Map<String, Object>> assignments = LabelAssignmentController.getLabelAssignments('');
+        List<Map<String, Object>> assignments = LabelAssignmentController.getAssignments('');
         
         Test.stopTest();
         
@@ -80,16 +80,16 @@ private class LabelAssignmentControllerTest {
     }
     
     /**
-     * @description Test getLabelAssignments method with valid labelId
+     * @description Test getAssignments method with valid labelId
      */
     @isTest
-    static void testGetLabelAssignmentsWithValidId() {
+    static void testGetAssignmentsWithValidId() {
         UserDefinedLabel testLabel = [SELECT Id FROM UserDefinedLabel WHERE Name = 'Test Label' LIMIT 1];
         Case testCase = [SELECT Id, CaseNumber, Subject FROM Case LIMIT 1];
         
         Test.startTest();
         
-        List<Map<String, Object>> assignments = LabelAssignmentController.getLabelAssignments(testLabel.Id);
+        List<Map<String, Object>> assignments = LabelAssignmentController.getAssignments(testLabel.Id);
         
         Test.stopTest();
         
@@ -110,33 +110,41 @@ private class LabelAssignmentControllerTest {
         
         // Verify the Case assignment was enriched
         System.assertNotEquals(null, caseAssignment, 'Should find the Case assignment');
-        System.assertEquals(true, caseAssignment.get('IsCaseRecord'), 'Should be marked as a Case record');
-        System.assertEquals(testCase.CaseNumber, caseAssignment.get('CaseNumber'), 'Should have the Case number');
-        System.assertEquals(testCase.Subject, caseAssignment.get('CaseSubject'), 'Should have the Case subject');
+        
+        // Test updated object properties based on our new controller response structure
+        System.assertEquals('Case', caseAssignment.get('ObjectType'), 'Should have the correct object type');
+        System.assertEquals('Case', caseAssignment.get('ObjectApiName'), 'Should have the correct API name');
+        System.assertEquals('standard:case', caseAssignment.get('IconName'), 'Should have the correct icon name');
+        
+        // Verify RecordDetails structure
+        Map<String, Object> recordDetails = (Map<String, Object>)caseAssignment.get('RecordDetails');
+        System.assertNotEquals(null, recordDetails, 'Should have RecordDetails map');
+        System.assertEquals(testCase.CaseNumber, recordDetails.get('CaseNumber'), 'Should have the Case number in RecordDetails');
+        System.assertEquals(testCase.Subject, recordDetails.get('Subject'), 'Should have the Case subject in RecordDetails');
+        
+        // Verify name format
         System.assertEquals(testCase.CaseNumber + ' - ' + testCase.Subject, 
                             caseAssignment.get('SubjectOrName'), 
                             'SubjectOrName should be formatted as CaseNumber - Subject');
         
-        // Verify the regular assignment wasn't modified
+        // Verify the regular assignment fields
         System.assertNotEquals(null, regularAssignment, 'Should find the regular assignment');
         System.assertEquals('Test Account', regularAssignment.get('SubjectOrName'), 'Regular record should have original SubjectOrName');
-        System.assertEquals(false, regularAssignment.containsKey('IsCaseRecord') && 
-                           (Boolean)regularAssignment.get('IsCaseRecord'), 
-                           'Regular record should not be marked as a Case');
+        System.assertNotEquals(null, regularAssignment.get('RecordDetails'), 'Should have RecordDetails, even if empty');
     }
     
     /**
-     * @description Test getLabelAssignments method with exception handling
+     * @description Test getAssignments method with exception handling
      */
     @isTest
-    static void testGetLabelAssignmentsExceptionHandling() {
+    static void testGetAssignmentsExceptionHandling() {
         // Mock invalid ID that will cause an exception
         String invalidId = 'INVALID_ID';
         
         Test.startTest();
         
         try {
-            LabelAssignmentController.getLabelAssignments(invalidId);
+            LabelAssignmentController.getAssignments(invalidId);
             System.assert(false, 'Should have thrown an exception');
         } catch (AuraHandledException e) {
             System.assert(e.getMessage().contains('Error retrieving Label Assignments'), 
@@ -217,10 +225,10 @@ private class LabelAssignmentControllerTest {
     }
     
     /**
-     * @description Test deleteMultipleAssignments method with valid assignment IDs
+     * @description Test deleteAssignments method with valid assignment IDs
      */
     @isTest
-    static void testDeleteMultipleAssignments() {
+    static void testDeleteAssignments() {
         // Get test data
         UserDefinedLabel testLabel = [SELECT Id FROM UserDefinedLabel WHERE Name = 'Test Label' LIMIT 1];
         List<UserDefinedLabelAssignment> assignments = [
@@ -238,7 +246,7 @@ private class LabelAssignmentControllerTest {
         Test.startTest();
         
         // Delete the assignments
-        LabelAssignmentController.deleteMultipleAssignments(assignmentIds);
+        LabelAssignmentController.deleteAssignments(assignmentIds);
         
         Test.stopTest();
         
@@ -252,14 +260,14 @@ private class LabelAssignmentControllerTest {
     }
     
     /**
-     * @description Test deleteMultipleAssignments method with empty list
+     * @description Test deleteAssignments method with empty list
      */
     @isTest
-    static void testDeleteMultipleAssignmentsWithEmptyList() {
+    static void testDeleteAssignmentsWithEmptyList() {
         Test.startTest();
         
         try {
-            LabelAssignmentController.deleteMultipleAssignments(new List<String>());
+            LabelAssignmentController.deleteAssignments(new List<String>());
             System.assert(false, 'Should have thrown an exception');
         } catch (AuraHandledException e) {
             System.assert(e.getMessage().contains('No assignment IDs provided'), 

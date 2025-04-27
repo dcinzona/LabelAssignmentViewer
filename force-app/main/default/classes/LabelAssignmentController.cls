@@ -76,8 +76,11 @@ public with sharing class LabelAssignmentController {
                 Map<String, Object> enrichedRecord = new Map<String, Object>{
                     'Id' => assign.Id,
                     'ItemId' => assign.ItemId,
-                    'EntityType' => assign.EntityType,
-                    'SubjectOrName' => assign.SubjectOrName
+                    'ObjectType' => assign.EntityType,
+                    'ObjectApiName' => assign.EntityType,
+                    'IconName' => 'standard:default',
+                    'SubjectOrName' => assign.SubjectOrName,
+                    'RecordDetails' => new Map<String, Object>()
                 };
                 
                 String itemId = (String)assign.ItemId;
@@ -85,9 +88,20 @@ public with sharing class LabelAssignmentController {
                 if (assign.ItemId != null && itemId.startsWith('500') && casesMap.containsKey(assign.ItemId)) {
                     Case caseRecord = casesMap.get(assign.ItemId);
                     enrichedRecord.put('SubjectOrName', caseRecord.CaseNumber + ' - ' + caseRecord.Subject);
-                    enrichedRecord.put('IsCaseRecord', true);
-                    enrichedRecord.put('CaseNumber', caseRecord.CaseNumber);
-                    enrichedRecord.put('CaseSubject', caseRecord.Subject);
+                    enrichedRecord.put('ObjectType', 'Case');
+                    enrichedRecord.put('ObjectApiName', 'Case');
+                    enrichedRecord.put('IconName', 'standard:case');
+                    
+                    // Create a map for Case record details
+                    Map<String, Object> recordDetails = new Map<String, Object>{
+                        'Id' => caseRecord.Id,
+                        'CaseNumber' => caseRecord.CaseNumber,
+                        'Subject' => caseRecord.Subject,
+                        'Status' => 'Open', // Default value
+                        'Priority' => 'Medium' // Default value
+                    };
+                    
+                    enrichedRecord.put('RecordDetails', recordDetails);
                 }
                 
                 enrichedAssignments.add(enrichedRecord);
@@ -150,7 +164,7 @@ public with sharing class LabelAssignmentController {
      * @return void
      */
     @AuraEnabled
-    public static void deleteMultipleAssignments(List<String> assignmentIds) {
+    public static void deleteAssignments(List<String> assignmentIds) {
         try {
             if (assignmentIds == null || assignmentIds.isEmpty()) {
                 throw new AuraHandledException('No assignment IDs provided for deletion');
