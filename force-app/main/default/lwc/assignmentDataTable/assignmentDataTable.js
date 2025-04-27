@@ -102,59 +102,12 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     
     // Process the assignments data
     processAssignments(records) {
-        // Current date for generating recent dates - using fixed date for demo to match screenshot
-        const now = new Date('2025-04-25T20:00:00');
-        
-        // If no records provided, create sample records for demo purposes
-        if (!records || records.length === 0) {
-            // Create sample records that match the screenshot
-            records = [
-                {
-                    Id: '001001',
-                    ItemId: '00001026',
-                    SubjectOrName: '00001026', // Case number
-                    ObjectType: 'Case',
-                    ObjectApiName: 'Case',
-                    IconName: 'standard:case',
-                    RecordDetails: {
-                        CaseNumber: '00001026',
-                        Subject: 'Sample Case Subject',
-                        Status: 'New',
-                        Priority: 'High'
-                    }
-                },
-                {
-                    Id: '001002',
-                    ItemId: 'test-acc-1',
-                    SubjectOrName: 'test acc 1', // Account name
-                    ObjectType: 'Account',
-                    ObjectApiName: 'Account',
-                    IconName: 'standard:account',
-                    RecordDetails: {
-                        Name: 'test acc 1',
-                        Type: 'Customer',
-                        Phone: '555-555-5555',
-                        Website: 'https://www.example.com',
-                        'Owner': 'User User',
-                        'Site': 'Headquarters',
-                        Industry: 'Technology'
-                    }
-                }
-            ];
+        if (!records) {
+            records = [];
         }
         
         // Transform the records for the datatable
-        this.assignments = records.map((record, index) => {
-            // Create dates to match the screenshot
-            let date;
-            if (index === 0) {
-                // First record: 4/25/2025, 8:16 PM
-                date = new Date('2025-04-25T20:16:00');
-            } else {
-                // Second record: 4/25/2025, 8:29 PM
-                date = new Date('2025-04-25T20:29:00');
-            }
-            
+        this.assignments = records.map((record) => {
             // Create a processed record with enhanced fields for display
             const processedRecord = {
                 Id: record.Id,
@@ -166,8 +119,8 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
                 RecordDetails: record.RecordDetails || {},
                 // Add URL for navigation
                 recordUrl: `/lightning/r/${record.ItemId}/view`,
-                // Add assigned date field
-                LabelAssignedDate: date
+                // Use the actual assigned date from the record
+                LabelAssignedDate: record.LabelAssignedDate || new Date()
             };
             
             return processedRecord;
