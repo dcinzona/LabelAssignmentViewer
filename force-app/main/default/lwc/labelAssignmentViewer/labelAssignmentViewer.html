@@ -75,23 +75,25 @@
                 </div>
             </template>
 
-            <!-- Table view toggle buttons -->
-            <div class="slds-grid slds-gutters slds-p-horizontal_medium slds-p-bottom_small">
-                <div class="slds-col slds-size_1-of-2">
-                    <lightning-button-group>
-                        <lightning-button 
-                            label="Custom Table" 
-                            variant={customTableVariant} 
-                            onclick={handleCustomTableView}>
-                        </lightning-button>
-                        <lightning-button 
-                            label="Standard Table" 
-                            variant={standardTableVariant} 
-                            onclick={handleStandardTableView}>
-                        </lightning-button>
-                    </lightning-button-group>
+            <template if:false={showEmptySelectionState}>
+                <!-- Table view toggle buttons -->
+                <div class="slds-grid slds-gutters slds-p-horizontal_medium slds-p-bottom_small">
+                    <div class="slds-col slds-size_1-of-2">
+                        <lightning-button-group>
+                            <lightning-button 
+                                label="Custom Table" 
+                                variant={customTableVariant} 
+                                onclick={handleCustomTableView}>
+                            </lightning-button>
+                            <lightning-button 
+                                label="Standard Table" 
+                                variant={standardTableVariant} 
+                                onclick={handleStandardTableView}>
+                            </lightning-button>
+                        </lightning-button-group>
+                    </div>
                 </div>
-            </div>
+            </template>
             
             <!-- Assignment DataTable Component (Custom HTML Implementation) -->
             <template if:true={showCustomTable}>

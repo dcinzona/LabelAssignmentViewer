@@ -28,22 +28,6 @@
         </div>
     </template>
 
-    <!-- Empty state message when no label is selected -->
-    <template if:true={showEmptySelectionState}>
-        <div
-            class="slds-illustration slds-illustration_small slds-p-around_small slds-m-around_small slds-box slds-theme_shade"
-        >
-            <div class="slds-text-longform">
-                <h3 class="slds-text-heading_small">
-                    Select a label to view assignments
-                </h3>
-                <p class="slds-text-body_small">
-                    Choose a User Defined Label from the dropdown above.
-                </p>
-            </div>
-        </div>
-    </template>
-
     <!-- Empty state message when no assignments found -->
     <template if:true={showNoAssignmentsState}>
         <div
