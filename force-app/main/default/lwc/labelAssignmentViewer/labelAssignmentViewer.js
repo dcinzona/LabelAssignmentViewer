@@ -16,6 +16,7 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     @track selectedRows = [];
     @track isDeleteModalOpen = false;
     @track isDeleteLabelModalOpen = false;
+    @track isRecordDetailsModalOpen = false;
     @track selectedLabelName = '';
     @track searchTerm = '';
     @track error;
@@ -25,6 +26,7 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
     @track lastRefreshed = new Date();
     @track sortBy;
     @track sortDirection = 'asc';
+    @track selectedRecordDetails = null;
     
     // Maximum number of records to show without pagination
     maxRecords = 100;
@@ -91,7 +93,14 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
             { 
                 label: 'Item ID', 
                 fieldName: 'ItemId', 
-                type: 'text',
+                type: 'button',
+                typeAttributes: {
+                    label: { fieldName: 'ItemId' },
+                    name: 'show_details',
+                    variant: 'base',
+                    iconPosition: 'left',
+                    title: 'View Record Details'
+                },
                 sortable: true,
                 cellAttributes: { 
                     class: { fieldName: 'itemIdClass' },
@@ -227,9 +236,58 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
                 this.confirmDelete(row);
                 break;
                 
+            case 'show_details':
+                this.showRecordDetails(row);
+                break;
+                
             default:
                 break;
         }
+    }
+    
+    // Show record details in a popover/modal
+    showRecordDetails(row) {
+        // Get the record details
+        this.selectedRecordDetails = this.prepareRecordDetails(row);
+        
+        // Show the details modal
+        this.isRecordDetailsModalOpen = true;
+    }
+    
+    // Prepare record details for display
+    prepareRecordDetails(record) {
+        // Extract fields for display
+        const details = {
+            Id: record.ItemId,
+            Type: record.EntityType,
+            Name: record.SubjectOrName,
+            Icon: record.iconName,
+            Fields: []
+        };
+        
+        // Add standard fields
+        details.Fields.push({ label: 'Record ID', value: record.ItemId });
+        details.Fields.push({ label: 'Entity Type', value: record.EntityType });
+        
+        // Add special Case-specific fields
+        if (record.ItemId && record.ItemId.startsWith('500')) {
+            details.Fields.push({ label: 'Case Number', value: record.CaseNumber || 'N/A' });
+            details.Fields.push({ label: 'Subject', value: record.CaseSubject || 'N/A' });
+            details.Fields.push({ label: 'Status', value: record.CaseStatus || 'N/A' });
+            details.Fields.push({ label: 'Priority', value: record.CasePriority || 'N/A' });
+        }
+        
+        // Add assignment details
+        details.Fields.push({ label: 'Assignment ID', value: record.Id });
+        details.Fields.push({ label: 'Label Name', value: this.currentLabelName });
+        
+        return details;
+    }
+    
+    // Close the record details modal
+    closeRecordDetails() {
+        this.isRecordDetailsModalOpen = false;
+        this.selectedRecordDetails = null;
     }
     
     // Navigate to record detail page
