@@ -44,8 +44,9 @@
 /* Row number column */
 .row-number {
     width: 2rem;
-    text-align: center;
+    text-align: left;
     color: #706e6b;
+    padding-left: 1rem;
 }
 
 /* Link styling to match screenshot exactly */
