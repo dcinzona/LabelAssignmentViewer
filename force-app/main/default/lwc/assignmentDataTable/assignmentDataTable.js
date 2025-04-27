@@ -20,6 +20,7 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     @track lastRefreshed = new Date();
     @track sortBy = 'SubjectOrName';
     @track sortDirection = 'asc';
+    @track deletingAssignment = null;
     
     connectedCallback() {
         // Define columns when component is initialized
@@ -343,41 +344,13 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         this.isDeleteModalOpen = true;
     }
     
-    // Delete an assignment
+    // This method is no longer needed as the deletion is handled in deleteSelectedAssignments
+    // keeping it for reference
+    /*
     deleteAssignment(assignmentId) {
-        this.isLoading = true;
-        
-        deleteAssignment({ assignmentId: assignmentId })
-            .then(() => {
-                // Show success message
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Success',
-                        message: 'Assignment deleted successfully.',
-                        variant: 'success'
-                    })
-                );
-                
-                // Refresh data
-                return this.refreshData();
-            })
-            .catch(error => {
-                // Show error message
-                this.error = this.reduceErrors(error);
-                
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Error',
-                        message: this.error,
-                        variant: 'error'
-                    })
-                );
-            })
-            .finally(() => {
-                this.isLoading = false;
-                this.deletingAssignment = null;
-            });
+        // Logic moved to deleteSelectedAssignments
     }
+    */
     
     // Handle column sorting
     handleSort(event) {
@@ -589,39 +562,75 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         this.isLoading = true;
         this.isDeleteModalOpen = false;
         
-        // Call Apex method to delete assignments
-        deleteAssignments({ assignmentIds: this.selectedRows })
-            .then(() => {
-                // Show success message
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Success',
-                        message: `${this.selectedRows.length} assignment(s) deleted successfully.`,
-                        variant: 'success'
-                    })
-                );
-                
-                // Reset selected rows
-                this.selectedRows = [];
-                
-                // Refresh data
-                return this.refreshData();
-            })
-            .catch(error => {
-                // Show error message
-                this.error = this.reduceErrors(error);
-                
-                this.dispatchEvent(
-                    new ShowToastEvent({
-                        title: 'Error',
-                        message: this.error,
-                        variant: 'error'
-                    })
-                );
-            })
-            .finally(() => {
-                this.isLoading = false;
-            });
+        // If we're deleting a single assignment from the action menu
+        if (this.deletingAssignment) {
+            deleteAssignment({ assignmentId: this.deletingAssignment.Id })
+                .then(() => {
+                    // Show success message
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: 'Assignment deleted successfully.',
+                            variant: 'success'
+                        })
+                    );
+                    
+                    // Refresh data
+                    return this.refreshData();
+                })
+                .catch(error => {
+                    // Show error message
+                    this.error = this.reduceErrors(error);
+                    
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error',
+                            message: this.error,
+                            variant: 'error'
+                        })
+                    );
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                    this.deletingAssignment = null;
+                });
+        } 
+        // Otherwise, we're deleting multiple selected assignments
+        else if (this.selectedRows && this.selectedRows.length > 0) {
+            // Call Apex method to delete assignments
+            deleteAssignments({ assignmentIds: this.selectedRows })
+                .then(() => {
+                    // Show success message
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Success',
+                            message: `${this.selectedRows.length} assignment(s) deleted successfully.`,
+                            variant: 'success'
+                        })
+                    );
+                    
+                    // Reset selected rows
+                    this.selectedRows = [];
+                    
+                    // Refresh data
+                    return this.refreshData();
+                })
+                .catch(error => {
+                    // Show error message
+                    this.error = this.reduceErrors(error);
+                    
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'Error',
+                            message: this.error,
+                            variant: 'error'
+                        })
+                    );
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        }
     }
     
     // Cancel delete selected
