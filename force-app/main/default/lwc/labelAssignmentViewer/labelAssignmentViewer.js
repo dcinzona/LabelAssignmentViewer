@@ -7,6 +7,7 @@ export default class LabelAssignmentViewer extends LightningElement {
     @track isLoading = false;
     @track error;
     @track lastRefreshed = new Date();
+    @track tableView = 'custom'; // Default to custom table view (options: 'custom' or 'standard')
     
     connectedCallback() {
         // Initialize component

@@ -75,11 +75,39 @@
                 </div>
             </template>
 
-            <!-- Assignment DataTable Component -->
-            <c-assignment-data-table
-                label-id={selectedLabelId}
-                label-name={selectedLabelName}>
-            </c-assignment-data-table>
+            <!-- Table view toggle buttons -->
+            <div class="slds-grid slds-gutters slds-p-horizontal_medium slds-p-bottom_small">
+                <div class="slds-col slds-size_1-of-2">
+                    <lightning-button-group>
+                        <lightning-button 
+                            label="Custom Table" 
+                            variant={customTableVariant} 
+                            onclick={handleCustomTableView}>
+                        </lightning-button>
+                        <lightning-button 
+                            label="Standard Table" 
+                            variant={standardTableVariant} 
+                            onclick={handleStandardTableView}>
+                        </lightning-button>
+                    </lightning-button-group>
+                </div>
+            </div>
+            
+            <!-- Assignment DataTable Component (Custom HTML Implementation) -->
+            <template if:true={showCustomTable}>
+                <c-assignment-data-table
+                    label-id={selectedLabelId}
+                    label-name={selectedLabelName}>
+                </c-assignment-data-table>
+            </template>
+            
+            <!-- Assignment Lightning Table Component (Standard Table Implementation) -->
+            <template if:true={showStandardTable}>
+                <c-assignment-lightning-table
+                    label-id={selectedLabelId}
+                    label-name={selectedLabelName}>
+                </c-assignment-lightning-table>
+            </template>
         </div>
     </article>
 </template>

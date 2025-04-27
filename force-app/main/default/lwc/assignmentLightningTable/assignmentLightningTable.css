@@ -1,0 +1,29 @@
+.slds-card {
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+    border: 1px solid #dddbda;
+}
+
+.record-count {
+    padding: 0.5rem 1rem 0.25rem 1rem;
+    border-top: 1px solid #dddbda;
+    border-bottom: 1px solid #dddbda;
+    background-color: #f3f2f2;
+}
+
+/* Style for action menu */
+.action-button {
+    float: right;
+}
+
+lightning-input.slds-lookup, lightning-input.slds-lookup input {
+    min-height: 32px;
+}
+
+/* Ensure modals appear on top */
+.slds-modal {
+    z-index: 9002;
+}
+
+.slds-backdrop {
+    z-index: 9001;
+}

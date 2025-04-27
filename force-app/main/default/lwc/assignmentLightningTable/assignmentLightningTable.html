@@ -1,0 +1,198 @@
+<template>
+    <!-- Main component container -->
+    <div class="slds-card">
+        <!-- Empty state when no label is selected -->
+        <template if:true={showEmptySelectionState}>
+            <div class="slds-card__body slds-card__body_inner slds-p-around_medium slds-text-align_center">
+                <div class="slds-illustration slds-illustration_small">
+                    <div class="slds-text-longform">
+                        <h3 class="slds-text-heading_medium">Select a Label</h3>
+                        <p class="slds-text-body_regular">Choose a label from the selector above to view its assignments.</p>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Loading spinner while data is being loaded -->
+        <template if:true={isLoading}>
+            <div class="slds-card__body slds-card__body_inner slds-p-around_medium slds-text-align_center">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- No assignments state when label is selected but no assignments found -->
+        <template if:true={showNoAssignmentsState}>
+            <div class="slds-card__body slds-card__body_inner slds-p-around_medium slds-text-align_center">
+                <div class="slds-illustration slds-illustration_small">
+                    <div class="slds-text-longform">
+                        <h3 class="slds-text-heading_medium">No Assignments Found</h3>
+                        <p class="slds-text-body_regular">There are no assignments for this label yet.</p>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Data table for assignments when data is available -->
+        <template if:true={showDataTable}>
+            <div class="slds-card__header">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                    <div class="slds-media__body">
+                        <h2 class="slds-card__header-title">
+                            {labelName} ({filteredAssignments.length})
+                        </h2>
+                    </div>
+                    <div class="slds-no-flex">
+                        <template if:true={hasSelectedRows}>
+                            <lightning-button 
+                                label={deleteButtonLabel}
+                                variant="destructive" 
+                                icon-name="utility:delete" 
+                                onclick={handleDeleteSelected}
+                                class="slds-m-right_x-small"
+                            ></lightning-button>
+                        </template>
+                        <lightning-button-icon
+                            icon-name="utility:refresh"
+                            variant="border-filled"
+                            alternative-text="Refresh"
+                            title="Refresh"
+                            onclick={refreshData}
+                            class="slds-m-left_xx-small"
+                        >
+                        </lightning-button-icon>
+                        <lightning-button-icon
+                            icon-name="utility:settings"
+                            variant="border-filled"
+                            alternative-text="Settings"
+                            title="Settings"
+                            class="slds-m-left_xx-small"
+                        >
+                        </lightning-button-icon>
+                    </div>
+                </header>
+            </div>
+
+            <!-- Items count and last updated -->
+            <div class="record-count">
+                <div class="slds-text-color_weak slds-text-body_small">
+                    {filteredAssignments.length} item<template
+                        if:true={showPlural}
+                        >s</template
+                    >
+                    • Updated {formattedDateTime}
+                </div>
+            </div>
+
+            <!-- Search box for filtering assignments -->
+            <div class="slds-p-around_small">
+                <lightning-input
+                    type="search"
+                    label="Search"
+                    placeholder="Search in assignments..."
+                    value={searchTerm}
+                    onchange={handleSearchChange}
+                    variant="label-hidden"
+                ></lightning-input>
+            </div>
+
+            <!-- Using lightning-datatable for assignments -->
+            <div class="slds-card__body">
+                <lightning-datatable
+                    key-field="Id"
+                    data={filteredAssignments}
+                    columns={columns}
+                    sorted-by={sortBy}
+                    sorted-direction={sortDirection}
+                    onsort={handleSort}
+                    onrowaction={handleRowAction}
+                    onrowselection={handleRowSelection}
+                    selected-rows={selectedRowIds}
+                    hide-checkbox-column="false"
+                    show-row-number-column="false"
+                >
+                </lightning-datatable>
+            </div>
+
+            <!-- Footer with label name and record count -->
+            <div class="slds-p-around_small slds-border_top slds-text-align_center">
+                <span class="slds-text-body_small">{labelName} • {recordCountText}</span>
+            </div>
+        </template>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <template if:true={isDeleteModalOpen}>
+        <section
+            role="dialog"
+            tabindex="-1"
+            aria-labelledby="modal-heading-01"
+            aria-modal="true"
+            aria-describedby="modal-content-id-1"
+            class="slds-modal slds-fade-in-open"
+        >
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button
+                        class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close"
+                        onclick={cancelDeleteSelected}
+                    >
+                        <lightning-icon
+                            icon-name="utility:close"
+                            alternative-text="close"
+                            variant="inverse"
+                            size="small"
+                        ></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2
+                        id="modal-heading-01"
+                        class="slds-modal__title slds-hyphenate"
+                    >
+                        <template if:true={deletingAssignment}>
+                            Delete Assignment
+                        </template>
+                        <template if:false={deletingAssignment}>
+                            Delete Selected Assignments
+                        </template>
+                    </h2>
+                </header>
+                <div
+                    class="slds-modal__content slds-p-around_medium"
+                    id="modal-content-id-1"
+                >
+                    <template if:true={deletingAssignment}>
+                        <p>
+                            Are you sure you want to delete the assignment for
+                            "{deletingAssignment.SubjectOrName}"? This action
+                            cannot be undone.
+                        </p>
+                    </template>
+                    <template if:false={deletingAssignment}>
+                        <p>
+                            Are you sure you want to delete {selectedRowCount} selected 
+                            <template if:true={isSingleSelection}>assignment</template>
+                            <template if:false={isSingleSelection}>assignments</template>? 
+                            This action cannot be undone.
+                        </p>
+                    </template>
+                </div>
+                <footer class="slds-modal__footer">
+                    <button
+                        class="slds-button slds-button_neutral"
+                        onclick={cancelDeleteSelected}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        class="slds-button slds-button_destructive"
+                        onclick={deleteSelectedAssignments}
+                    >
+                        Delete
+                    </button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>
