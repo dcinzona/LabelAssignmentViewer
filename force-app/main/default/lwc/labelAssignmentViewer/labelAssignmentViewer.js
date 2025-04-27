@@ -93,18 +93,16 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
             { 
                 label: 'Item ID', 
                 fieldName: 'ItemId', 
-                type: 'button',
+                type: 'richText',
                 typeAttributes: {
-                    label: { fieldName: 'ItemId' },
-                    name: 'show_details',
-                    variant: 'base',
-                    iconPosition: 'left',
-                    title: 'View Record Details'
+                    richText: { fieldName: 'ItemId' }
                 },
                 sortable: true,
                 cellAttributes: { 
                     class: { fieldName: 'itemIdClass' },
-                    alignment: 'left'
+                    alignment: 'left',
+                    wrapText: false,
+                    style: { fieldName: 'tooltipStyle' }
                 }
             },
             { 
@@ -183,9 +181,54 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
             // Add styling classes based on record type
             if (record.ItemId && record.ItemId.startsWith('500')) {
                 // This is a Case record
-                enhancedRecord.itemIdClass = 'slds-text-color_success';
+                enhancedRecord.itemIdClass = 'slds-text-color_success slds-has-popover slds-popover_tooltip item-id-popover';
                 enhancedRecord.subjectClass = 'slds-text-color_success';
                 enhancedRecord.iconName = 'standard:case';
+                
+                // Prepare tooltip content for Case records
+                enhancedRecord.tooltipStyle = 'position: relative;';
+                enhancedRecord.ItemId = `<span aria-describedby="help" class="item-id-hover">${record.ItemId}<span class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left slds-hide" role="tooltip" id="help">
+                    <div class="slds-popover__body">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <span class="slds-icon_container" title="Case">
+                                <svg class="slds-icon slds-icon_small slds-icon-standard-case" aria-hidden="true">
+                                    <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#case"></use>
+                                </svg>
+                                </span>
+                            </div>
+                            <div class="slds-media__body">
+                                <h3 class="slds-text-heading_small">Case: ${record.CaseNumber || 'N/A'}</h3>
+                                <p>Subject: ${record.CaseSubject || 'N/A'}</p>
+                                <p>Status: ${record.CaseStatus || 'N/A'}</p>
+                                <p>Priority: ${record.CasePriority || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </span></span>`;
+            } else {
+                // For non-Case records
+                enhancedRecord.itemIdClass = 'slds-has-popover slds-popover_tooltip item-id-popover';
+                
+                // Prepare tooltip content for other records
+                enhancedRecord.tooltipStyle = 'position: relative;';
+                enhancedRecord.ItemId = `<span aria-describedby="help" class="item-id-hover">${record.ItemId}<span class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left slds-hide" role="tooltip" id="help">
+                    <div class="slds-popover__body">
+                        <div class="slds-media">
+                            <div class="slds-media__figure">
+                                <span class="slds-icon_container" title="${record.EntityType}">
+                                <svg class="slds-icon slds-icon_small slds-icon-standard-${record.EntityType.toLowerCase()}" aria-hidden="true">
+                                    <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#${record.EntityType.toLowerCase()}"></use>
+                                </svg>
+                                </span>
+                            </div>
+                            <div class="slds-media__body">
+                                <h3 class="slds-text-heading_small">${record.EntityType}: ${record.SubjectOrName}</h3>
+                                <p>Record ID: ${record.ItemId}</p>
+                            </div>
+                        </div>
+                    </div>
+                </span></span>`;
             }
             
             return enhancedRecord;
@@ -655,6 +698,41 @@ export default class LabelAssignmentViewer extends NavigationMixin(LightningElem
         ]).finally(() => {
             this.isLoading = false;
             this.lastRefreshed = new Date();
+            
+            // Initialize popover effects after data loads
+            this.initializePopovers();
         });
+    }
+    
+    // Initialize popover hover effects after render
+    renderedCallback() {
+        this.initializePopovers();
+    }
+    
+    // Add event listeners for popover hover effects
+    initializePopovers() {
+        // Wait a moment for the DOM to be ready
+        setTimeout(() => {
+            const container = this.template.querySelector('.slds-table_header-fixed_container');
+            if (container) {
+                // Find all the hover elements
+                const hoverElements = container.querySelectorAll('.item-id-hover');
+                
+                // Make sure we have the popovers in the DOM
+                if (hoverElements && hoverElements.length > 0) {
+                    console.log(`Found ${hoverElements.length} hover elements to initialize`);
+                    
+                    // Generate unique IDs for each popover to ensure they work independently
+                    hoverElements.forEach((element, index) => {
+                        const popover = element.querySelector('.slds-popover');
+                        if (popover) {
+                            const uniqueId = `tooltip_${index}_${Date.now()}`;
+                            element.setAttribute('aria-describedby', uniqueId);
+                            popover.setAttribute('id', uniqueId);
+                        }
+                    });
+                }
+            }
+        }, 100);
     }
 }
