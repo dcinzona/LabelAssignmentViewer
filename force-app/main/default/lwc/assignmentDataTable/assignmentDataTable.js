@@ -24,15 +24,25 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     connectedCallback() {
         // Define columns when component is initialized
         this.columns = [
-            // Column for record name/subject with item icon
+            // Column for record name/subject with item icon using custom type
             {
                 label: 'Name',
-                fieldName: 'SubjectOrName',
+                fieldName: 'recordUrl', // For internal navigation tracking, not displayed
                 sortable: true,
-                type: 'text',
-                wrapText: false,
+                type: 'button',
+                typeAttributes: {
+                    label: { fieldName: 'SubjectOrName' },
+                    name: 'navigate_to_record',
+                    variant: 'base',
+                    class: 'record-name-link',
+                    title: { fieldName: 'SubjectOrName' }
+                },
                 cellAttributes: {
-                    alignment: 'left'
+                    class: 'record-popover-cell',
+                    'data-record-id': { fieldName: 'ItemId' },
+                    'data-object-api-name': { fieldName: 'ObjectApiName' },
+                    'data-icon-name': { fieldName: 'iconName' },
+                    'data-subject-or-name': { fieldName: 'SubjectOrName' }
                 }
             },
             // Column for object type
@@ -51,7 +61,7 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
                 type: 'action',
                 typeAttributes: {
                     rowActions: [
-                        { label: 'View', name: 'view' },
+                        { label: 'View', name: 'view_record' },
                         { label: 'Delete', name: 'delete' }
                     ]
                 }
@@ -82,15 +92,20 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     processAssignments(records) {
         // Transform the records for the datatable
         this.assignments = records.map(record => {
-            return {
+            // Create a processed record with enhanced fields for display
+            const processedRecord = {
                 Id: record.Id,
                 ItemId: record.ItemId,
                 SubjectOrName: record.SubjectOrName,
                 ObjectType: record.ObjectType,
-                ObjectApiName: record.ObjectApiName,
-                IconName: record.IconName,
-                RecordDetails: record.RecordDetails
+                ObjectApiName: record.ObjectApiName || 'Custom__c',
+                iconName: record.IconName || 'standard:custom',
+                RecordDetails: record.RecordDetails || {},
+                // Add URL for navigation (used by our custom button/link)
+                recordUrl: `/lightning/r/${record.ItemId}/view`
             };
+            
+            return processedRecord;
         });
         
         // Sort the assignments
@@ -98,6 +113,11 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         
         // Apply search filter if there's a search term
         this.filterAssignments();
+        
+        // Set timeout to initialize popovers after render
+        setTimeout(() => {
+            this.initializePopovers();
+        }, 250);
     }
     
     // Handle search input changes
@@ -119,19 +139,24 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         }
     }
     
-    // Handle row actions (view, delete)
+    // Handle row actions (view, delete) and button clicks
     handleRowAction(event) {
         const action = event.detail.action;
         const row = event.detail.row;
         
         switch (action.name) {
-            case 'view':
+            case 'view_record':
+                this.navigateToRecord(row.ItemId);
+                break;
+            case 'navigate_to_record':
                 this.navigateToRecord(row.ItemId);
                 break;
             case 'delete':
                 this.confirmDelete(row);
                 break;
             default:
+                // Default action
+                break;
         }
     }
     
@@ -326,25 +351,7 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         return `${Math.min(50, this.filteredAssignments.length)} of ${this.filteredAssignments.length} items`;
     }
     
-    // Show empty selection state when no label is selected
-    get showEmptySelectionState() {
-        return !this.labelId;
-    }
-    
-    // Show empty assignments state when label is selected but no assignments found
-    get showNoAssignmentsState() {
-        return this.labelId && this.assignments.length === 0 && !this.isLoading && !this.error;
-    }
-    
-    // Show data table when there are assignments to display
-    get showDataTable() {
-        return this.labelId && this.assignments.length > 0 && !this.isLoading && !this.error;
-    }
-    
-    // Hide data table (opposite of showDataTable)
-    get dontShowDataTable() {
-        return !this.showDataTable;
-    }
+
     
     // Check if rows are selected
     get hasSelectedRows() {
@@ -454,7 +461,59 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     
     // Initialize popovers for record detail
     initializePopovers() {
-        // Implementation for initializing popovers will be added later
-        // This is a placeholder for the functionality that will use the RecordDetailPopover component
+        // Get all cells with record-popover-cell class
+        const popoverCells = this.template.querySelectorAll('.record-popover-cell');
+        
+        if (!popoverCells || popoverCells.length === 0) {
+            return;
+        }
+        
+        // For each cell, initialize a popover
+        popoverCells.forEach(cell => {
+            // Get record details from data attributes
+            const recordId = cell.dataset.recordId;
+            const objectApiName = cell.dataset.objectApiName;
+            const iconName = cell.dataset.iconName;
+            const name = cell.dataset.subjectOrName;
+            
+            if (!recordId) {
+                return; // Skip if no record ID
+            }
+            
+            // Get the record from our assignments list
+            const record = this.assignments.find(r => r.ItemId === recordId);
+            if (!record) {
+                return; // Skip if record not found
+            }
+            
+            // Create and append RecordDetailPopover component
+            const popover = document.createElement('c-record-detail-popover');
+            popover.recordId = recordId;
+            popover.objectApiName = objectApiName;
+            popover.iconName = iconName;
+            popover.name = name;
+            popover.objectLabel = record.ObjectType;
+            popover.recordDetails = record.RecordDetails;
+            
+            // Handle mouseover/mouseout events manually for the cell to control the popover
+            cell.addEventListener('mouseover', () => {
+                // Show the popover
+                const popoverElement = cell.querySelector('.slds-popover');
+                if (popoverElement) {
+                    popoverElement.classList.remove('slds-hide');
+                }
+            });
+            
+            cell.addEventListener('mouseout', () => {
+                // Hide the popover
+                const popoverElement = cell.querySelector('.slds-popover');
+                if (popoverElement) {
+                    popoverElement.classList.add('slds-hide');
+                }
+            });
+            
+            // Add the popover to the cell
+            cell.appendChild(popover);
+        });
     }
 }

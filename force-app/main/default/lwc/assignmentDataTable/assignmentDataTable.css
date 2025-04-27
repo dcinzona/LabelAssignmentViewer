@@ -1,8 +1,42 @@
-.item-id-hover {
-    cursor: default;
+/* Datatable row hover styles */
+.record-name-link {
+    color: rgb(0, 112, 210);
+    text-decoration: none;
+}
+
+.record-name-link:hover {
+    color: rgb(0, 95, 178);
+    text-decoration: underline;
+}
+
+/* Base popover cell styles */
+.record-popover-cell {
     position: relative;
 }
 
+/* Popover styling */
+.slds-popover {
+    position: absolute;
+    top: 2rem;
+    left: 0;
+    width: 320px;
+    max-width: 400px;
+    z-index: 9000;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+}
+
+/* Make sure popover is visible on hover */
+.record-popover-cell:hover {
+    z-index: 9001;
+}
+
+/* Set relative position for container */
+.item-id-hover {
+    position: relative;
+    cursor: pointer;
+}
+
+/* Popover positioning */
 .item-id-hover .slds-popover {
     position: absolute;
     top: 2rem;
@@ -12,14 +46,7 @@
     z-index: 9000;
 }
 
+/* Force display on hover */
 .item-id-hover:hover .slds-hide {
     display: block !important;
-}
-
-.item-id-popover {
-    position: relative;
-}
-
-.item-id-popover:hover {
-    z-index: 9001;
 }
