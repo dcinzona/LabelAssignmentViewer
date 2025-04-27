@@ -51,9 +51,12 @@
     vertical-align: middle;
 }
 
-.index-icon {
+.index-number {
     display: inline-block;
     vertical-align: middle;
+    font-size: 0.75rem;
+    color: #706e6b;
+    font-weight: 400;
 }
 
 /* Link styling to match screenshot exactly */
