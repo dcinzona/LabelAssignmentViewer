@@ -48,12 +48,19 @@
     color: #706e6b;
 }
 
-/* Link styling to match screenshot */
+/* Link styling to match screenshot exactly */
 .record-link {
     color: rgb(0, 112, 210) !important;
     text-decoration: none;
     cursor: pointer;
     font-size: 0.75rem;
+    font-weight: normal;
+    padding: 0;
+    outline: none;
+    background: transparent;
+    border: none;
+    text-align: left;
+    vertical-align: middle;
 }
 
 .record-link:hover {
@@ -78,19 +85,22 @@
     display: inline-block;
 }
 
-/* Action button menu styling */
-.action-menu button {
-    border: 1px solid #dddbda !important;
-    border-radius: 4px !important;
-    padding: 0.25rem !important;
-    width: 1.5rem !important;
-    height: 1.5rem !important;
+/* Action button styling to match screenshot exactly */
+.action-button {
+    background: white;
+    border: 1px solid #dddbda;
+    border-radius: 4px;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
-/* Make sure the button menu icon is properly sized and aligned */
-.action-menu .slds-button__icon {
-    width: 0.75rem !important;
-    height: 0.75rem !important;
+.action-button:hover {
+    background-color: #f3f2f2;
 }
 
 /* Hover states for rows */

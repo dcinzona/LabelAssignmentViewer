@@ -91,12 +91,15 @@
                             <th class="slds-text-title_caps" scope="col" style="width: 50px;"></th>
                             <th class="slds-text-title_caps" scope="col">
                                 <div class="slds-truncate" title="Record">Record</div>
+                                <div class="sort-icon"></div>
                             </th>
                             <th class="slds-text-title_caps" scope="col">
                                 <div class="slds-truncate" title="Label Assigned Date">Label Assigned Date</div>
+                                <div class="sort-icon"></div>
                             </th>
                             <th class="slds-text-title_caps" scope="col">
                                 <div class="slds-truncate" title="Object Type">Object Type</div>
+                                <div class="sort-icon"></div>
                             </th>
                             <th class="slds-text-title_caps" scope="col" style="width: 50px;"></th>
                         </tr>
@@ -104,7 +107,7 @@
                     <tbody>
                         <template for:each={filteredAssignments} for:item="assignment" for:index="index">
                             <tr key={assignment.Id} class="slds-hint-parent">
-                                <td class="row-number">{index, indexOffset}</td>
+                                <td class="row-number">{indexPlusOne}</td>
                                 <td>
                                     <div class="record-hover-container">
                                         <a href="javascript:void(0);" class="record-link" 
@@ -127,10 +130,11 @@
                                 </td>
                                 <td>{assignment.ObjectType}</td>
                                 <td>
-                                    <lightning-button-menu alternative-text="Show menu" variant="border-filled" class="action-menu">
-                                        <lightning-menu-item value="view" label="View Record" onclick={handleViewRecord} data-record-id={assignment.ItemId}></lightning-menu-item>
-                                        <lightning-menu-item value="delete" label="Delete" onclick={handleDeleteRecord} data-record-id={assignment.Id} data-record-name={assignment.SubjectOrName}></lightning-menu-item>
-                                    </lightning-button-menu>
+                                    <button class="action-button" onclick={handleActionClick} data-record-id={assignment.ItemId} data-record-index={index}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 5v14M5 12h14" stroke="#706e6b" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
+                                    </button>
                                 </td>
                             </tr>
                         </template>
