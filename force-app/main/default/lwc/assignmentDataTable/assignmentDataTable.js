@@ -255,14 +255,43 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     
     // Handle action menu click (+ button)
     handleActionClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
         const recordId = event.currentTarget.dataset.recordId;
         const index = event.currentTarget.dataset.recordIndex;
         
         if (recordId && index !== undefined) {
-            // In a real implementation, we would show a dropdown menu
-            // For now, just navigate to the record
-            this.navigateToRecord(recordId);
+            // Toggle dropdown menu
+            const dropdownTrigger = event.currentTarget.closest('.slds-dropdown-trigger');
+            
+            // Close all other open dropdowns first
+            const allDropdowns = this.template.querySelectorAll('.slds-dropdown-trigger');
+            allDropdowns.forEach(dropdown => {
+                if (dropdown !== dropdownTrigger) {
+                    dropdown.classList.remove('slds-is-open');
+                }
+            });
+            
+            // Toggle current dropdown
+            dropdownTrigger.classList.toggle('slds-is-open');
+            
+            // Add click event listener to document to close dropdown when clicking outside
+            if (dropdownTrigger.classList.contains('slds-is-open')) {
+                setTimeout(() => {
+                    window.addEventListener('click', this.closeDropdowns.bind(this));
+                }, 0);
+            }
         }
+    }
+    
+    // Close all dropdowns when clicking outside
+    closeDropdowns() {
+        const dropdowns = this.template.querySelectorAll('.slds-dropdown-trigger');
+        dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('slds-is-open');
+        });
+        window.removeEventListener('click', this.closeDropdowns.bind(this));
     }
     
     // Navigate to the record
@@ -276,11 +305,42 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         });
     }
     
+    // Handle view record action from dropdown
+    handleViewRecord(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const recordId = event.currentTarget.dataset.recordId;
+        if (recordId) {
+            this.navigateToRecord(recordId);
+        }
+        
+        // Close all dropdowns
+        this.closeDropdowns();
+    }
+    
+    // Handle delete record action from dropdown
+    handleDeleteRecord(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const recordId = event.currentTarget.dataset.recordId;
+        if (recordId) {
+            const assignment = this.assignments.find(item => item.ItemId === recordId);
+            if (assignment) {
+                this.confirmDelete(assignment);
+            }
+        }
+        
+        // Close all dropdowns
+        this.closeDropdowns();
+    }
+    
     // Confirm deletion of an assignment
     confirmDelete(row) {
-        if (confirm(`Are you sure you want to delete the assignment for "${row.SubjectOrName}"?`)) {
-            this.deleteAssignment(row.Id);
-        }
+        // Use the modal instead of browser confirm dialog
+        this.deletingAssignment = row;
+        this.isDeleteModalOpen = true;
     }
     
     // Delete an assignment
@@ -315,6 +375,7 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
             })
             .finally(() => {
                 this.isLoading = false;
+                this.deletingAssignment = null;
             });
     }
     
@@ -566,6 +627,7 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
     // Cancel delete selected
     cancelDeleteSelected() {
         this.isDeleteModalOpen = false;
+        this.deletingAssignment = null;
     }
     
     // Public method to refresh data
