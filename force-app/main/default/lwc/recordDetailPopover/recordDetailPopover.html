@@ -4,7 +4,7 @@
         
         <!-- Popover styled like salesforce standard hover -->
         <div class="slds-popover slds-popover_panel slds-nubbin_top-left popover-panel" role="dialog">
-            <div class="slds-popover__header slds-p-vertical_medium slds-p-horizontal_small">
+            <div class="slds-popover__header">
                 <div class="slds-grid slds-gutters">
                     <div class="slds-col slds-size_1-of-5">
                         <!-- Icon -->
@@ -28,15 +28,13 @@
                     </div>
                 </div>
             </div>
-            <div class="slds-popover__body slds-p-around_small">
-                <div class="slds-grid slds-wrap">
+            <div class="slds-popover__body">
+                <dl class="slds-list_horizontal slds-wrap">
                     <!-- Field list -->
                     <template if:true={hasDisplayFields}>
                         <template for:each={displayFields} for:item="field">
-                            <div key={field.key} class="slds-col slds-size_1-of-2 slds-p-bottom_x-small">
-                                <div class="slds-text-title slds-truncate">{field.label}</div>
-                                <div class="slds-text-body_small slds-truncate" title={field.value}>{field.value}</div>
-                            </div>
+                            <dt key={field.key} class="field-label slds-item_label slds-truncate" title={field.label}>{field.label}</dt>
+                            <dd key={field.key} class="field-value slds-item_detail slds-truncate" title={field.value}>{field.value}</dd>
                         </template>
                     </template>
                     
@@ -45,7 +43,7 @@
                             <div class="slds-text-body_small slds-text-color_weak">No details available</div>
                         </div>
                     </template>
-                </div>
+                </dl>
             </div>
             <div class="slds-popover__footer slds-text-align_right">
                 <a onclick={navigateToRecord} class="record-link slds-text-body_small">View All</a>
