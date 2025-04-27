@@ -1,156 +1,283 @@
 <template>
     <!-- Loading spinner -->
-    <template if:true={isLoading}>
+    <template if:true="{isLoading}">
         <div class="slds-is-relative slds-p-around_medium">
-            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+            <lightning-spinner
+                alternative-text="Loading"
+                size="small"
+            ></lightning-spinner>
         </div>
     </template>
 
     <!-- Error message -->
-    <template if:true={error}>
-        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+    <template if:true="{error}">
+        <div
+            class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error"
+            role="alert"
+        >
             <span class="slds-assistive-text">Error</span>
             <h2 class="slds-text-body_regular">
-                <lightning-icon icon-name="utility:error" alternative-text="Error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                <lightning-icon
+                    icon-name="utility:error"
+                    alternative-text="Error"
+                    size="x-small"
+                    class="slds-m-right_x-small"
+                ></lightning-icon>
                 {error}
             </h2>
         </div>
     </template>
 
     <!-- Empty state message when no label is selected -->
-    <template if:true={showEmptySelectionState}>
-        <div class="slds-illustration slds-illustration_small slds-p-around_small slds-box slds-theme_shade">
+    <template if:true="{showEmptySelectionState}">
+        <div
+            class="slds-illustration slds-illustration_small slds-p-around_small slds-m-around_small slds-box slds-theme_shade"
+        >
             <div class="slds-text-longform">
-                <h3 class="slds-text-heading_small">Select a label to view assignments</h3>
-                <p class="slds-text-body_small">Choose a User Defined Label from the dropdown above.</p>
+                <h3 class="slds-text-heading_small">
+                    Select a label to view assignments
+                </h3>
+                <p class="slds-text-body_small">
+                    Choose a User Defined Label from the dropdown above.
+                </p>
             </div>
         </div>
     </template>
 
     <!-- Empty state message when no assignments found -->
-    <template if:true={showNoAssignmentsState}>
-        <div class="slds-illustration slds-illustration_small slds-p-around_small slds-box slds-theme_shade">
+    <template if:true="{showNoAssignmentsState}">
+        <div
+            class="slds-illustration slds-illustration_small slds-p-around_small slds-box slds-theme_shade"
+        >
             <div class="slds-text-longform">
                 <h3 class="slds-text-heading_small">No assignments found</h3>
-                <template if:true={isSearching}>
-                    <p class="slds-text-body_small">No assignments match your search criteria. Try a different search term.</p>
+                <template if:true="{isSearching}">
+                    <p class="slds-text-body_small">
+                        No assignments match your search criteria. Try a
+                        different search term.
+                    </p>
                 </template>
-                <template if:false={isSearching}>
-                    <p class="slds-text-body_small">There are no assignments for the selected label.</p>
+                <template if:false="{isSearching}">
+                    <p class="slds-text-body_small">
+                        There are no assignments for the selected label.
+                    </p>
                 </template>
             </div>
         </div>
     </template>
 
     <!-- Data table for assignments -->
-    <template if:true={showDataTable}>
+    <template if:true="{showDataTable}">
         <div class="slds-card">
             <!-- Card header with title and action buttons -->
             <div class="slds-card__header slds-grid">
-                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <header
+                    class="slds-media slds-media_center slds-has-flexi-truncate"
+                >
                     <div class="slds-media__figure">
-                        <lightning-icon icon-name="standard:relationship" size="small"></lightning-icon>
+                        <lightning-icon
+                            icon-name="standard:relationship"
+                            size="small"
+                        ></lightning-icon>
                     </div>
                     <div class="slds-media__body">
                         <h2 class="slds-card__header-title">
-                            {labelName} • {recordCountText}
+                            {labelName} ({filteredAssignments.length})
                         </h2>
                     </div>
                     <div class="slds-no-flex">
-                        <lightning-button-icon 
-                            icon-name="utility:refresh" 
-                            variant="border-filled" 
+                        <lightning-button-icon
+                            icon-name="utility:refresh"
+                            variant="border-filled"
                             alternative-text="Refresh"
                             title="Refresh"
-                            onclick={refreshData}
-                            class="slds-m-left_xx-small">
+                            onclick="{refreshData}"
+                            class="slds-m-left_xx-small"
+                        >
                         </lightning-button-icon>
-                        <lightning-button-icon 
-                            icon-name="utility:settings" 
-                            variant="border-filled" 
+                        <lightning-button-icon
+                            icon-name="utility:settings"
+                            variant="border-filled"
                             alternative-text="Settings"
                             title="Settings"
-                            class="slds-m-left_xx-small">
+                            class="slds-m-left_xx-small"
+                        >
                         </lightning-button-icon>
                     </div>
                 </header>
             </div>
-            
+
             <!-- Items count and last updated -->
             <div class="record-count">
                 <div class="slds-text-color_weak slds-text-body_small">
-                    {filteredAssignments.length} item<template if:true={showPlural}>s</template> • Updated {formattedDateTime}
+                    {filteredAssignments.length} item<template
+                        if:true="{showPlural}"
+                        >s</template
+                    >
+                    • Updated {formattedDateTime}
                 </div>
             </div>
-            
+
             <!-- Data table with exact styling from screenshot -->
             <div class="slds-card__body">
-                <table class="assignment-table slds-table slds-table_cell-buffer slds-table_bordered">
+                <table
+                    class="assignment-table slds-table slds-table_cell-buffer slds-table_bordered"
+                >
                     <thead>
                         <tr class="slds-line-height_reset">
-                            <th class="slds-text-title_caps" scope="col" style="width: 50px;"></th>
-                            <th class="slds-text-title_caps" scope="col" onclick={handleHeaderClick} data-field="SubjectOrName">
-                                <div class="slds-truncate" title="Record">Record</div>
+                            <th
+                                class="slds-text-title_caps"
+                                scope="col"
+                                style="width: 50px"
+                            ></th>
+                            <th
+                                class="slds-text-title_caps"
+                                scope="col"
+                                onclick="{handleHeaderClick}"
+                                data-field="SubjectOrName"
+                            >
+                                <div class="slds-truncate" title="Record">
+                                    Record
+                                </div>
                                 <div class="sort-icon"></div>
                             </th>
-                            <th class="slds-text-title_caps" scope="col" onclick={handleHeaderClick} data-field="LabelAssignedDate">
-                                <div class="slds-truncate" title="Label Assigned Date">Label Assigned Date</div>
+                            <th
+                                class="slds-text-title_caps"
+                                scope="col"
+                                onclick="{handleHeaderClick}"
+                                data-field="LabelAssignedDate"
+                            >
+                                <div
+                                    class="slds-truncate"
+                                    title="Label Assigned Date"
+                                >
+                                    Label Assigned Date
+                                </div>
                                 <div class="sort-icon"></div>
                             </th>
-                            <th class="slds-text-title_caps" scope="col" onclick={handleHeaderClick} data-field="ObjectType">
-                                <div class="slds-truncate" title="Object Type">Object Type</div>
+                            <th
+                                class="slds-text-title_caps"
+                                scope="col"
+                                onclick="{handleHeaderClick}"
+                                data-field="ObjectType"
+                            >
+                                <div class="slds-truncate" title="Object Type">
+                                    Object Type
+                                </div>
                                 <div class="sort-icon"></div>
                             </th>
-                            <th class="slds-text-title_caps" scope="col" style="width: 50px;"></th>
+                            <th
+                                class="slds-text-title_caps"
+                                scope="col"
+                                style="width: 50px"
+                            ></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <template for:each={filteredAssignments} for:item="assignment" for:index="index">
-                            <tr key={assignment.Id} class="slds-hint-parent" data-index={index}>
+                        <template
+                            for:each="{filteredAssignments}"
+                            for:item="assignment"
+                            for:index="index"
+                        >
+                            <tr
+                                key="{assignment.Id}"
+                                class="slds-hint-parent"
+                                data-index="{index}"
+                            >
                                 <td class="row-number">
                                     <span class="index-number">{indexNum}</span>
                                 </td>
                                 <td>
                                     <c-record-detail-popover
-                                        record-id={assignment.ItemId}
-                                        object-api-name={assignment.ObjectApiName}
-                                        icon-name={assignment.IconName}
-                                        name={assignment.SubjectOrName}
-                                        object-label={assignment.ObjectType}
-                                        record-details={assignment.RecordDetails}>
+                                        record-id="{assignment.ItemId}"
+                                        object-api-name="{assignment.ObjectApiName}"
+                                        icon-name="{assignment.IconName}"
+                                        name="{assignment.SubjectOrName}"
+                                        object-label="{assignment.ObjectType}"
+                                        record-details="{assignment.RecordDetails}"
+                                    >
                                     </c-record-detail-popover>
                                 </td>
                                 <td>
                                     <lightning-formatted-date-time
-                                        value={assignment.LabelAssignedDate}
+                                        value="{assignment.LabelAssignedDate}"
                                         year="2-digit"
                                         month="2-digit"
                                         day="2-digit"
                                         hour="2-digit"
                                         minute="2-digit"
-                                        hour12="true">
+                                        hour12="true"
+                                    >
                                     </lightning-formatted-date-time>
                                 </td>
                                 <td>{assignment.ObjectType}</td>
                                 <td>
-                                    <div class="slds-dropdown-trigger slds-dropdown-trigger_click">
-                                        <button class="action-button" onclick={handleActionClick} data-record-id={assignment.ItemId} data-record-index={index}>
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M6 9l6 6 6-6" stroke="#706e6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <div
+                                        class="slds-dropdown-trigger slds-dropdown-trigger_click"
+                                    >
+                                        <button
+                                            class="action-button"
+                                            onclick="{handleActionClick}"
+                                            data-record-id="{assignment.ItemId}"
+                                            data-record-index="{index}"
+                                        >
+                                            <svg
+                                                width="14"
+                                                height="14"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                                <path
+                                                    d="M6 9l6 6 6-6"
+                                                    stroke="#706e6b"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                />
                                             </svg>
                                         </button>
-                                        <div class="slds-dropdown slds-dropdown_right action-menu" data-index={index}>
-                                            <ul class="slds-dropdown__list" role="menu" aria-label="Show More">
-                                                <li class="slds-dropdown__item" role="presentation">
-                                                    <a href="javascript:void(0);" role="menuitem" tabindex="-1" 
-                                                       onclick={handleViewRecord} data-record-id={assignment.ItemId}>
-                                                        <span class="slds-truncate">View Record</span>
+                                        <div
+                                            class="slds-dropdown slds-dropdown_right action-menu"
+                                            data-index="{index}"
+                                        >
+                                            <ul
+                                                class="slds-dropdown__list"
+                                                role="menu"
+                                                aria-label="Show More"
+                                            >
+                                                <li
+                                                    class="slds-dropdown__item"
+                                                    role="presentation"
+                                                >
+                                                    <a
+                                                        href="javascript:void(0);"
+                                                        role="menuitem"
+                                                        tabindex="-1"
+                                                        onclick="{handleViewRecord}"
+                                                        data-record-id="{assignment.ItemId}"
+                                                    >
+                                                        <span
+                                                            class="slds-truncate"
+                                                            >View Record</span
+                                                        >
                                                     </a>
                                                 </li>
-                                                <li class="slds-dropdown__item" role="presentation">
-                                                    <a href="javascript:void(0);" role="menuitem" tabindex="-1"
-                                                       onclick={handleDeleteRecord} data-record-id={assignment.ItemId}>
-                                                        <span class="slds-truncate">Delete</span>
+                                                <li
+                                                    class="slds-dropdown__item"
+                                                    role="presentation"
+                                                >
+                                                    <a
+                                                        href="javascript:void(0);"
+                                                        role="menuitem"
+                                                        tabindex="-1"
+                                                        onclick="{handleDeleteRecord}"
+                                                        data-record-id="{assignment.ItemId}"
+                                                    >
+                                                        <span
+                                                            class="slds-truncate"
+                                                            >Delete</span
+                                                        >
                                                     </a>
                                                 </li>
                                             </ul>
@@ -161,37 +288,82 @@
                         </template>
                     </tbody>
                 </table>
-                
+
                 <!-- Footer with label name and record count -->
-                <div class="slds-p-around_small slds-border_top slds-text-align_center">
-                    <span class="slds-text-body_small">{labelName} • {recordCountText}</span>
+                <div
+                    class="slds-p-around_small slds-border_top slds-text-align_center"
+                >
+                    <span class="slds-text-body_small"
+                        >{labelName} • {recordCountText}</span
+                    >
                 </div>
             </div>
         </div>
     </template>
-    
+
     <!-- Delete Confirmation Modal -->
-    <template if:true={isDeleteModalOpen}>
-        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+    <template if:true="{isDeleteModalOpen}">
+        <section
+            role="dialog"
+            tabindex="-1"
+            aria-labelledby="modal-heading-01"
+            aria-modal="true"
+            aria-describedby="modal-content-id-1"
+            class="slds-modal slds-fade-in-open"
+        >
             <div class="slds-modal__container">
                 <header class="slds-modal__header">
-                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={cancelDeleteSelected}>
-                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                    <button
+                        class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close"
+                        onclick="{cancelDeleteSelected}"
+                    >
+                        <lightning-icon
+                            icon-name="utility:close"
+                            alternative-text="close"
+                            variant="inverse"
+                            size="small"
+                        ></lightning-icon>
                         <span class="slds-assistive-text">Close</span>
                     </button>
-                    <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Delete Assignment</h2>
+                    <h2
+                        id="modal-heading-01"
+                        class="slds-modal__title slds-hyphenate"
+                    >
+                        Delete Assignment
+                    </h2>
                 </header>
-                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-                    <template if:true={deletingAssignment}>
-                        <p>Are you sure you want to delete the assignment for "{deletingAssignment.SubjectOrName}"? This action cannot be undone.</p>
+                <div
+                    class="slds-modal__content slds-p-around_medium"
+                    id="modal-content-id-1"
+                >
+                    <template if:true="{deletingAssignment}">
+                        <p>
+                            Are you sure you want to delete the assignment for
+                            "{deletingAssignment.SubjectOrName}"? This action
+                            cannot be undone.
+                        </p>
                     </template>
-                    <template if:false={deletingAssignment}>
-                        <p>Are you sure you want to delete the selected assignment(s)? This action cannot be undone.</p>
+                    <template if:false="{deletingAssignment}">
+                        <p>
+                            Are you sure you want to delete the selected
+                            assignment(s)? This action cannot be undone.
+                        </p>
                     </template>
                 </div>
                 <footer class="slds-modal__footer">
-                    <button class="slds-button slds-button_neutral" onclick={cancelDeleteSelected}>Cancel</button>
-                    <button class="slds-button slds-button_destructive" onclick={deleteSelectedAssignments}>Delete</button>
+                    <button
+                        class="slds-button slds-button_neutral"
+                        onclick="{cancelDeleteSelected}"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        class="slds-button slds-button_destructive"
+                        onclick="{deleteSelectedAssignments}"
+                    >
+                        Delete
+                    </button>
                 </footer>
             </div>
         </section>
