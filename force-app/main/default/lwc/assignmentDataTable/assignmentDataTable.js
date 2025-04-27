@@ -504,6 +504,18 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         return this.selectedRows ? this.selectedRows.length : 0;
     }
     
+    // Generate a dynamic label for the delete button based on selection count
+    get deleteButtonLabel() {
+        const count = this.selectedRowCount;
+        if (count === 0) {
+            return 'Delete Selected';
+        } else if (count === 1) {
+            return 'Delete (1)';
+        } else {
+            return `Delete (${count})`;
+        }
+    }
+    
     // Handle row selection from checkboxes
     handleRowSelection(event) {
         const checkboxId = event.target.dataset.id;
@@ -517,12 +529,32 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         } else {
             // Remove from selectedRows
             this.selectedRows = this.selectedRows.filter(id => id !== checkboxId);
-            
-            // If we're unchecking a checkbox, make sure the "select all" checkbox is unchecked
-            const selectAllCheckbox = this.template.querySelector('#select-all');
-            if (selectAllCheckbox) {
-                selectAllCheckbox.checked = false;
-            }
+        }
+        
+        // Update the state of the "select all" checkbox
+        this.updateSelectAllCheckbox();
+    }
+    
+    // Update the state of the "select all" checkbox based on current selections
+    updateSelectAllCheckbox() {
+        const selectAllCheckbox = this.template.querySelector('#select-all');
+        if (!selectAllCheckbox) return;
+        
+        const totalRows = this.filteredAssignments.length;
+        const selectedRows = this.selectedRows.length;
+        
+        if (selectedRows === 0) {
+            // None selected
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        } else if (selectedRows === totalRows) {
+            // All selected
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.indeterminate = false;
+        } else {
+            // Some selected
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = true;
         }
     }
     
@@ -535,6 +567,9 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         checkboxes.forEach(checkbox => {
             checkbox.checked = isChecked;
         });
+        
+        // Clear indeterminate state
+        event.target.indeterminate = false;
         
         // Update selectedRows based on select all state
         if (isChecked) {
@@ -666,6 +701,7 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
                             const selectAllCheckbox = this.template.querySelector('#select-all');
                             if (selectAllCheckbox) {
                                 selectAllCheckbox.checked = false;
+                                selectAllCheckbox.indeterminate = false;
                             }
                             
                             // Reset all row checkboxes
@@ -706,8 +742,8 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
             this.updateSortIndicators();
         }
         
-        // Update row numbers
-        this.updateRowNumbers();
+        // Update the select all checkbox state based on current selections
+        this.updateSelectAllCheckbox();
     }
     
     // Update row numbers to show index+1 - no longer needed since we replaced row numbers with checkboxes
