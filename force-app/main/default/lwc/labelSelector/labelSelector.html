@@ -1,0 +1,68 @@
+<template>
+    <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_3-of-4">
+            <lightning-combobox
+                name="userDefinedLabel"
+                label="Select User Defined Label"
+                value={selectedLabelId}
+                placeholder="Choose a label"
+                options={labelOptions}
+                onchange={handleLabelChange}
+                disabled={isLoading}
+                variant="label-hidden"
+                class="slds-m-bottom_x-small">
+            </lightning-combobox>
+        </div>
+        <div class="slds-col slds-size_1-of-4 slds-align-middle">
+            <lightning-button 
+                variant="destructive" 
+                label="Delete Label" 
+                title="Delete Label"
+                onclick={handleDeleteLabel} 
+                disabled={noLabelSelected}
+                class="slds-m-bottom_x-small slds-m-left_x-small">
+            </lightning-button>
+        </div>
+    </div>
+    
+    <!-- Loading spinner for the component -->
+    <template if:true={isLoading}>
+        <div class="slds-is-relative">
+            <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+        </div>
+    </template>
+    
+    <!-- Error message -->
+    <template if:true={error}>
+        <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error slds-m-top_x-small" role="alert">
+            <span class="slds-assistive-text">Error</span>
+            <h2 class="slds-text-body_regular">
+                <lightning-icon icon-name="utility:error" alternative-text="Error" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                {error}
+            </h2>
+        </div>
+    </template>
+    
+    <!-- Delete Label Modal -->
+    <template if:true={isDeleteLabelModalOpen}>
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={cancelDeleteLabel}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-02" class="slds-modal__title slds-hyphenate">Delete Label</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                    <p>Are you sure you want to delete the label "{selectedLabelName}" and all its assignments? This action cannot be undone.</p>
+                </div>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={cancelDeleteLabel}>Cancel</button>
+                    <button class="slds-button slds-button_destructive" onclick={deleteLabelAndAssignments}>Delete</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

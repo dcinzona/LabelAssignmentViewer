@@ -1,0 +1,56 @@
+.item-id-hover {
+    cursor: default;
+    position: relative;
+}
+
+.item-id-hover .slds-popover {
+    position: absolute;
+    top: 2rem;
+    left: 0;
+    width: 320px;
+    max-width: 400px;
+    z-index: 9000;
+}
+
+.item-id-hover:hover .slds-hide {
+    display: block !important;
+}
+
+.slds-popover__body {
+    padding: 0.75rem;
+}
+
+.slds-popover__body p {
+    margin-bottom: 0.25rem;
+    font-size: 0.8125rem;
+}
+
+.slds-popover__body h3 {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* Standard icon background colors */
+.slds-icon-standard-case {
+    background-color: #f2cf5b;
+}
+
+.slds-icon-standard-account {
+    background-color: #7f8de1;
+}
+
+.slds-icon-standard-contact {
+    background-color: #a094ed;
+}
+
+.slds-icon-standard-opportunity {
+    background-color: #fcb95b;
+}
+
+.slds-icon-standard-lead {
+    background-color: #f88962;
+}
+
+.slds-icon-standard-custom {
+    background-color: #8199af;
+}

@@ -1,0 +1,24 @@
+<template>
+    <span aria-describedby={uniqueId} class="item-id-hover">
+        <slot></slot>
+        <span class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left slds-hide" role="tooltip" id={uniqueId}>
+            <div class="slds-popover__body">
+                <div class="slds-media">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon_container" title={recordType}>
+                            <svg class={iconClass} aria-hidden="true">
+                                <use xlink:href={svgUrl}></use>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <h3 class="slds-text-heading_small">{recordType}: {recordName}</h3>
+                        <template for:each={fields} for:item="field">
+                            <p key={field.label}>{field.label}: {field.value}</p>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </span>
+    </span>
+</template>

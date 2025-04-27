@@ -1,0 +1,25 @@
+.item-id-hover {
+    cursor: default;
+    position: relative;
+}
+
+.item-id-hover .slds-popover {
+    position: absolute;
+    top: 2rem;
+    left: 0;
+    width: 320px;
+    max-width: 400px;
+    z-index: 9000;
+}
+
+.item-id-hover:hover .slds-hide {
+    display: block !important;
+}
+
+.item-id-popover {
+    position: relative;
+}
+
+.item-id-popover:hover {
+    z-index: 9001;
+}
