@@ -499,9 +499,46 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         return !this.hasSelectedRows;
     }
     
-    // Handle row selection
+    // Handle row selection from checkboxes
     handleRowSelection(event) {
-        this.selectedRows = event.detail.selectedRows.map(row => row.Id);
+        const checkboxId = event.target.dataset.id;
+        const isChecked = event.target.checked;
+        
+        if (isChecked) {
+            // Add to selectedRows if not already there
+            if (!this.selectedRows.includes(checkboxId)) {
+                this.selectedRows.push(checkboxId);
+            }
+        } else {
+            // Remove from selectedRows
+            this.selectedRows = this.selectedRows.filter(id => id !== checkboxId);
+            
+            // If we're unchecking a checkbox, make sure the "select all" checkbox is unchecked
+            const selectAllCheckbox = this.template.querySelector('#select-all');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+            }
+        }
+    }
+    
+    // Handle select all checkbox
+    handleSelectAll(event) {
+        const isChecked = event.target.checked;
+        const checkboxes = this.template.querySelectorAll('input[name="options"]');
+        
+        // Update all row checkboxes
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+        
+        // Update selectedRows based on select all state
+        if (isChecked) {
+            // Select all rows
+            this.selectedRows = this.filteredAssignments.map(assignment => assignment.Id);
+        } else {
+            // Clear selection
+            this.selectedRows = [];
+        }
     }
     
     // Handle delete selected button click
@@ -645,20 +682,10 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         this.updateRowNumbers();
     }
     
-    // Update row numbers to show index+1
+    // Update row numbers to show index+1 - no longer needed since we replaced row numbers with checkboxes
     updateRowNumbers() {
-        // Get all rows in the table
-        const rows = this.template.querySelectorAll('tr[data-index]');
-        
-        // Update each row with its index + 1
-        rows.forEach(row => {
-            const index = parseInt(row.getAttribute('data-index'), 10);
-            const indexNum = index + 1;
-            const indexElement = row.querySelector('.index-number');
-            if (indexElement) {
-                indexElement.textContent = indexNum;
-            }
-        });
+        // This method is kept for backward compatibility but is no longer needed
+        // since we replaced row numbers with checkboxes
     }
     
     // Initialize popovers for record detail

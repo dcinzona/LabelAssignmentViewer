@@ -42,21 +42,25 @@
     color: #080707;
 }
 
-/* Row number column */
+/* Checkbox column (previously row number) */
 .row-number {
-    width: 1.5rem;
-    text-align: left;
+    width: 2rem;
+    text-align: center;
     color: #706e6b;
-    padding-left: 0.75rem;
+    padding-left: 0.5rem;
     vertical-align: middle;
 }
 
+/* Position the checkbox properly */
+.row-number .slds-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hide the index number since we're using checkboxes instead */
 .index-number {
-    display: inline-block;
-    vertical-align: middle;
-    font-size: 0.75rem;
-    color: #706e6b;
-    font-weight: 400;
+    display: none;
 }
 
 /* Link styling to match screenshot exactly */
