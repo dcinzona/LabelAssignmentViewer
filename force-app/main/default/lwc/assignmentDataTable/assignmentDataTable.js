@@ -634,13 +634,29 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         if (this.sortBy) {
             this.updateSortIndicators();
         }
+        
+        // Update row numbers
+        this.updateRowNumbers();
     }
     
-    // Initialize popovers for record detail - simpler implementation for the demo
-    initializePopovers() {
-        // In a real implementation, we would initialize the record detail popovers here
-        // But for the demo, we'll simulate the behavior with simple hover popups
+    // Update row numbers to show index+1
+    updateRowNumbers() {
+        // Get all rows in the table
+        const rows = this.template.querySelectorAll('tr[data-index]');
         
+        // Update each row with its index + 1
+        rows.forEach(row => {
+            const index = parseInt(row.getAttribute('data-index'), 10);
+            const indexNum = index + 1;
+            const indexElement = row.querySelector('.index-number');
+            if (indexElement) {
+                indexElement.textContent = indexNum;
+            }
+        });
+    }
+    
+    // Initialize popovers for record detail
+    initializePopovers() {
         const links = this.template.querySelectorAll('.record-link');
         if (!links || links.length === 0) {
             return;
@@ -649,19 +665,11 @@ export default class AssignmentDataTable extends NavigationMixin(LightningElemen
         links.forEach(link => {
             // Add hover event listeners to show popover
             link.addEventListener('mouseenter', (event) => {
-                // In a real implementation, we would show the popover with record details
-                // For this demo, we'll just add a tooltip-like title attribute
                 const recordId = event.currentTarget.dataset.recordId;
                 const record = this.assignments.find(r => r.ItemId === recordId);
                 
                 if (record) {
-                    if (record.ObjectApiName === 'Case') {
-                        event.currentTarget.title = `Case: ${record.SubjectOrName}\nStatus: Open\nPriority: High`;
-                    } else if (record.ObjectApiName === 'Account') {
-                        event.currentTarget.title = `Account: ${record.SubjectOrName}\nType: Customer\nIndustry: Technology`;
-                    } else {
-                        event.currentTarget.title = `${record.ObjectType}: ${record.SubjectOrName}`;
-                    }
+                    event.currentTarget.title = `${record.ObjectType}: ${record.SubjectOrName}`;
                 }
             });
         });

@@ -106,9 +106,9 @@
                     </thead>
                     <tbody>
                         <template for:each={filteredAssignments} for:item="assignment" for:index="index">
-                            <tr key={assignment.Id} class="slds-hint-parent">
+                            <tr key={assignment.Id} class="slds-hint-parent" data-index={index}>
                                 <td class="row-number">
-                                    <span class="index-number">⇒≥⨁</span>
+                                    <span class="index-number">{indexNum}</span>
                                 </td>
                                 <td>
                                     <c-record-detail-popover
