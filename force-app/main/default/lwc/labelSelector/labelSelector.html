@@ -14,16 +14,16 @@
                             disabled={isLoading}>
                         </lightning-combobox>
                     </div>
-                    <div class="slds-col slds-size_1-of-12 slds-p-left_x-small slds-grid slds-grid_vertical-align-end" if:true={selectedLabelId}>
+                    <template if:true={selectedLabelId}>
                         <lightning-button-icon 
                             icon-name="utility:delete" 
                             alternative-text="Delete label" 
                             title="Delete label" 
                             onclick={handleDeleteLabel}
-                            variant="destructive"
-                            class="slds-m-bottom_xx-small">
+                            variant="brand"
+                            class="slds-col slds-size_1-of-12">
                         </lightning-button-icon>
-                    </div>
+                    </template>
                 </div>
             </div>
         </div>
